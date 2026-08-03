@@ -1,0 +1,33 @@
+{% extends 'candidate/base.html' %}
+
+{% block page_title %}Job Details{% endblock %}
+
+{% block content %}
+<div class="portal-card">
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <div>
+            <h3 class="fw-bold mb-1">{{ job.title }}</h3>
+            <p class="text-muted-soft mb-0">{{ job.company }} · {{ job.location }}</p>
+        </div>
+        <span class="badge text-bg-primary align-self-md-start">{{ job.job_type }}</span>
+    </div>
+    <hr>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><strong>Salary</strong><br>{{ job.salary }}</div>
+        <div class="col-md-4"><strong>Experience</strong><br>{{ job.experience }}</div>
+        <div class="col-md-4"><strong>Posted</strong><br>{{ job.posted_date|date:"d M Y" }}</div>
+    </div>
+    <h5>Required Skills</h5>
+    <p>{{ job.skills }}</p>
+    <h5>Description</h5>
+    <p>{{ job.description }}</p>
+    <div class="d-flex gap-2">
+        {% if applied %}
+            <button class="btn btn-secondary" disabled>Already Applied</button>
+        {% else %}
+            <a href="{% url 'apply_job' job.id %}" class="btn btn-primary">Apply Now</a>
+        {% endif %}
+        <a href="{% url 'candidate_jobs' %}" class="btn btn-outline-secondary">Back to Jobs</a>
+    </div>
+</div>
+{% endblock %}

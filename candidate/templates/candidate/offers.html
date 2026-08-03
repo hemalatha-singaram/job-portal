@@ -1,0 +1,100 @@
+{% extends 'candidate/base.html' %}
+
+{% block content %}
+
+<div class="card shadow">
+
+    <div class="card-header bg-success text-white">
+
+        <h3>Job Offers</h3>
+
+    </div>
+
+    <div class="card-body">
+
+        <table class="table table-bordered">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>Job</th>
+                    <th>Salary</th>
+                    <th>Joining Date</th>
+                    <th>Offer Letter</th>
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for offer in offers %}
+
+                <tr>
+
+                    <td>{{ offer.application.job.title }}</td>
+
+                    <td>₹ {{ offer.salary }}</td>
+
+                    <td>{{ offer.joining_date }}</td>
+
+                    <td>
+
+                        <a href="{{ offer.offer_letter.url }}"
+                           class="btn btn-primary btn-sm">
+
+                            Download
+
+                        </a>
+
+                    </td>
+
+                    <td>
+
+                        {% if offer.accepted %}
+
+                        <span class="badge bg-success">
+
+                            Accepted
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-warning">
+
+                            Pending
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="5">
+
+                        No Offers Available
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'candidate/base.html' %}
+
+{% block content %}
+
+<div class="card shadow">
+
+    <div class="card-header bg-primary text-white">
+
+        <h3>Browse Jobs</h3>
+
+    </div>
+
+    <div class="card-body">
+
+        <form method="GET">
+
+            <div class="row">
+
+                <div class="col-md-5">
+
+                    <input type="text"
+                           name="keyword"
+                           class="form-control"
+                           placeholder="Search Job">
+
+                </div>
+
+                <div class="col-md-5">
+
+                    <input type="text"
+                           name="location"
+                           class="form-control"
+                           placeholder="Location">
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button class="btn btn-primary w-100">
+
+                        Search
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+        <hr>
+
+        {% for job in jobs %}
+
+        <div class="card mt-3">
+
+            <div class="card-body">
+
+                <h4>{{ job.title }}</h4>
+
+                <p>
+
+                    <strong>Company :</strong>
+
+                    {{ job.company }}
+
+                </p>
+
+                <p>
+
+                    <strong>Location :</strong>
+
+                    {{ job.location }}
+
+                </p>
+
+                <p>
+
+                    <strong>Salary :</strong>
+
+                    ₹ {{ job.salary }}
+
+                </p>
+
+                <a href="{% url 'candidate_job_detail' job.id %}"
+
+                   class="btn btn-success">
+
+                    View Details
+
+                </a>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="alert alert-danger">
+
+            No Jobs Available
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'candidate/base.html' %}
+
+{% block page_title %}Apply for Job{% endblock %}
+
+{% block content %}
+<div class="portal-card">
+    <h3 class="fw-bold">{{ job.title }}</h3>
+    <p class="text-muted-soft">{{ job.company }} · {{ job.location }}</p>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex gap-2">
+            <button class="btn btn-success">Submit Application</button>
+            <a href="{% url 'candidate_jobs' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

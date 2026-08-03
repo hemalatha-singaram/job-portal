@@ -1,0 +1,120 @@
+{% extends 'candidate/base.html' %}
+
+{% block content %}
+
+<!-- Statistics Cards -->
+<div class="row">
+
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h2>{{ applied_count }}</h2>
+                <p>Applied Jobs</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h2>{{ shortlisted_count }}</h2>
+                <p>Shortlisted</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-warning">
+            <div class="card-body">
+                <h2>{{ interview_count }}</h2>
+                <p>Interviews</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h2>{{ offer_count }}</h2>
+                <p>Offers</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ADD HERE -->
+<hr>
+
+<h3>Recent Activities</h3>
+
+<div class="list-group mb-4">
+
+    <a href="#" class="list-group-item list-group-item-action">
+        ✔ Resume Uploaded
+    </a>
+
+    <a href="#" class="list-group-item list-group-item-action">
+        ✔ Applied for Software Engineer
+    </a>
+
+    <a href="#" class="list-group-item list-group-item-action">
+        ✔ Interview Scheduled
+    </a>
+
+    <a href="#" class="list-group-item list-group-item-action">
+        ✔ Profile Updated
+    </a>
+
+</div>
+
+<!-- Latest Jobs -->
+<div class="card shadow">
+
+    <div class="card-header">
+        <h4>Latest Jobs</h4>
+    </div>
+
+    <div class="card-body">
+
+        <table class="table table-hover">
+
+            <thead>
+                <tr>
+                    <th>Job</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for job in jobs %}
+
+                <tr>
+
+                    <td>{{ job.title }}</td>
+                    <td>{{ job.company }}</td>
+                    <td>{{ job.location }}</td>
+
+                    <td>
+                        <a href="{% url 'candidate_job_detail' job.id %}"
+                           class="btn btn-primary btn-sm">
+                            View
+                        </a>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

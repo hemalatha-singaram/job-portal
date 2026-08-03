@@ -1,0 +1,57 @@
+{% extends 'candidate/base.html' %}
+
+{% block content %}
+
+<div class="card shadow">
+
+<div class="card-header bg-info text-white">
+
+<h3>
+
+Notifications
+
+</h3>
+
+</div>
+
+<div class="card-body">
+
+{% for notification in notifications %}
+
+<div class="alert alert-light border">
+
+<h5>
+
+{{ notification.title }}
+
+</h5>
+
+<p>
+
+{{ notification.message }}
+
+</p>
+
+<small>
+
+{{ notification.created }}
+
+</small>
+
+</div>
+
+{% empty %}
+
+<div class="alert alert-warning">
+
+No Notifications
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+{% endblock %}
