@@ -1,69 +1,257 @@
 {% extends 'candidate/base.html' %}
 
-{% block page_title %}Student Profile{% endblock %}
+{% block page_title %}Candidate Profile{% endblock %}
 
 {% block content %}
 
 <div class="card shadow">
 
+    <!-- Header -->
     <div class="card-header bg-primary text-white">
-
-        <h3>Candidate Profile</h3>
-
+        <h3 class="mb-0">Candidate Profile</h3>
     </div>
 
     <div class="card-body">
 
-        <!-- Profile Image -->
-
+        <!-- Profile Image and Basic Information -->
         <div class="text-center mb-4">
 
             {% if user.candidateprofile.profile_image %}
 
-                <img src="{{ user.candidateprofile.profile_image.url }}"
-                     width="150"
-                     height="150"
-                     class="rounded-circle border border-3">
+                <img
+                    src="{{ user.candidateprofile.profile_image.url }}"
+                    width="150"
+                    height="150"
+                    class="rounded-circle border border-3"
+                    style="object-fit: cover;"
+                >
 
             {% else %}
 
-                <img src="https://via.placeholder.com/150"
-                     width="150"
-                     height="150"
-                     class="rounded-circle border border-3">
+                <div
+                    class="rounded-circle bg-secondary text-white
+                           d-flex align-items-center justify-content-center mx-auto"
+                    style="width:150px; height:150px; font-size:50px;"
+                >
+                    {{ user.first_name|first|upper }}
+                </div>
 
             {% endif %}
 
             <h3 class="mt-3">
-
                 {{ user.first_name }} {{ user.last_name }}
-
             </h3>
 
-            <p>{{ user.email }}</p>
+            <p class="text-muted">
+                {{ user.email }}
+            </p>
 
         </div>
 
         <hr>
 
-        <form method="POST" enctype="multipart/form-data" class="row g-3">
+        <!-- ATS / Resume Information -->
+        <h4 class="mb-3">Resume & ATS Information</h4>
+
+        <div class="row g-3">
+
+            <!-- Skills -->
+            <div class="col-md-6">
+
+                <div class="card border-success h-100">
+
+                    <div class="card-header bg-success text-white">
+                        <strong>Skills</strong>
+                    </div>
+
+                    <div class="card-body">
+
+                        {% if user.candidateprofile.skills %}
+
+                            <p class="mb-0">
+                                {{ user.candidateprofile.skills }}
+                            </p>
+
+                        {% else %}
+
+                            <p class="text-muted mb-0">
+                                No skills extracted yet.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Experience -->
+            <div class="col-md-6">
+
+                <div class="card border-info h-100">
+
+                    <div class="card-header bg-info text-white">
+                        <strong>Experience</strong>
+                    </div>
+
+                    <div class="card-body">
+
+                        <h4 class="mb-0">
+                            {{ user.candidateprofile.experience }}
+                            year(s)
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Projects -->
+            <div class="col-md-6">
+
+                <div class="card border-primary h-100">
+
+                    <div class="card-header bg-primary text-white">
+                        <strong>Projects</strong>
+                    </div>
+
+                    <div class="card-body">
+
+                        {% if user.candidateprofile.projects %}
+
+                            <p class="mb-0">
+                                {{ user.candidateprofile.projects }}
+                            </p>
+
+                        {% else %}
+
+                            <p class="text-muted mb-0">
+                                No projects extracted yet.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Keywords -->
+            <div class="col-md-6">
+
+                <div class="card border-warning h-100">
+
+                    <div class="card-header bg-warning text-dark">
+                        <strong>Keywords</strong>
+                    </div>
+
+                    <div class="card-body">
+
+                        {% if user.candidateprofile.keywords %}
+
+                            <p class="mb-0">
+                                {{ user.candidateprofile.keywords }}
+                            </p>
+
+                        {% else %}
+
+                            <p class="text-muted mb-0">
+                                No keywords extracted yet.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Tags -->
+            <div class="col-12">
+
+                <div class="card border-dark">
+
+                    <div class="card-header bg-dark text-white">
+                        <strong>Candidate Tags</strong>
+                    </div>
+
+                    <div class="card-body">
+
+                        {% if user.candidateprofile.tags %}
+
+                            <p class="mb-0">
+                                {{ user.candidateprofile.tags }}
+                            </p>
+
+                        {% else %}
+
+                            <p class="text-muted mb-0">
+                                No tags generated yet.
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr class="my-4">
+
+
+        <!-- Update Profile -->
+        <h4 class="mb-3">Update Profile</h4>
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="row g-3"
+        >
 
             {% csrf_token %}
 
             {% for field in form %}
-            <div class="col-md-6">
-                <label class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
-            </div>
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.errors %}
+
+                        <div class="text-danger small">
+                            {{ field.errors }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
             {% endfor %}
 
             <div class="col-12">
-            <button class="btn btn-success">
 
-                Update Profile
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+                    Update Profile
+                </button>
 
-            </button>
             </div>
 
         </form>

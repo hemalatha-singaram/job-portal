@@ -4,84 +4,191 @@
 
 <div class="card shadow">
 
+    <!-- Page Header -->
     <div class="card-header bg-primary text-white">
-
-        <h3>My Applications</h3>
-
+        <h3 class="mb-0">My Applications</h3>
     </div>
 
     <div class="card-body">
 
-        <table class="table table-bordered table-hover">
+        {% if applications %}
 
-            <thead class="table-dark">
+        <div class="table-responsive">
 
-                <tr>
+            <table class="table table-bordered table-hover align-middle">
 
-                    <th>Job</th>
+                <thead class="table-dark">
+                    <tr>
+                        <th>Job</th>
+                        <th>Company</th>
+                        <th>Applied Date</th>
+                        <th>ATS Score</th>
+                        <th>Matched Skills</th>
+                        <th>Missing Skills</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
 
-                    <th>Company</th>
+                <tbody>
 
-                    <th>Applied Date</th>
+                    {% for application in applications %}
 
-                    <th>Status</th>
+                    <tr>
 
-                </tr>
+                        <!-- Job -->
+                        <td>
+                            <strong>
+                                {{ application.job.title }}
+                            </strong>
+                        </td>
 
-            </thead>
+                        <!-- Company -->
+                        <td>
+                            {{ application.job.company }}
+                        </td>
 
-            <tbody>
+                        <!-- Applied Date -->
+                        <td>
+                            {{ application.applied_date|date:"d M Y" }}
+                        </td>
 
-                {% for application in applications %}
+                        <!-- ATS Score -->
+                        <td>
 
-                <tr>
+                            <div class="progress"
+                                 style="height: 25px; min-width: 100px;">
 
-                    <td>{{ application.job.title }}</td>
+                                <div
+                                    class="progress-bar
+                                    {% if application.ats_score >= 70 %}
+                                        bg-success
+                                    {% elif application.ats_score >= 40 %}
+                                        bg-warning text-dark
+                                    {% else %}
+                                        bg-danger
+                                    {% endif %}"
 
-                    <td>{{ application.job.company }}</td>
+                                    role="progressbar"
 
-                    <td>{{ application.applied_date|date:"d M Y" }}</td>
+                                    style="width: {{ application.ats_score }}%;">
 
-                    <td>
+                                    {{ application.ats_score }}%
 
-                        {% if application.status == "Applied" %}
-                        <span class="badge bg-primary">Applied</span>
+                                </div>
 
-                        {% elif application.status == "Shortlisted" %}
-                        <span class="badge bg-success">Shortlisted</span>
+                            </div>
 
-                        {% elif application.status == "Interview" %}
-                        <span class="badge bg-warning text-dark">Interview</span>
+                            <small class="text-muted">
+                                Match:
+                                {{ application.matching_percentage }}%
+                            </small>
 
-                        {% elif application.status == "Selected" %}
-                        <span class="badge bg-info">Selected</span>
+                        </td>
 
-                        {% elif application.status == "Rejected" %}
-                        <span class="badge bg-danger">Rejected</span>
+                        <!-- Matched Skills -->
+                        <td>
 
-                        {% endif %}
+                            {% if application.matched_skills %}
 
-                    </td>
+                                <span class="text-success">
+                                    {{ application.matched_skills }}
+                                </span>
 
-                </tr>
+                            {% else %}
 
-                {% empty %}
+                                <span class="text-muted">
+                                    None
+                                </span>
 
-                <tr>
+                            {% endif %}
 
-                    <td colspan="4" class="text-center">
+                        </td>
 
-                        You have not applied for any jobs.
+                        <!-- Missing Skills -->
+                        <td>
 
-                    </td>
+                            {% if application.missing_skills %}
 
-                </tr>
+                                <span class="text-danger fw-bold">
+                                    {{ application.missing_skills }}
+                                </span>
 
-                {% endfor %}
+                            {% else %}
 
-            </tbody>
+                                <span class="text-success">
+                                    No missing skills
+                                </span>
 
-        </table>
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Application Status -->
+                        <td>
+
+                            {% if application.status == "Applied" %}
+
+                                <span class="badge bg-primary">
+                                    Applied
+                                </span>
+
+                            {% elif application.status == "Shortlisted" %}
+
+                                <span class="badge bg-success">
+                                    Shortlisted
+                                </span>
+
+                            {% elif application.status == "Interview" %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Interview
+                                </span>
+
+                            {% elif application.status == "Selected" %}
+
+                                <span class="badge bg-info">
+                                    Selected
+                                </span>
+
+                            {% elif application.status == "Rejected" %}
+
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <!-- No Applications -->
+        <div class="text-center py-5">
+
+            <h5>No Applications Yet</h5>
+
+            <p class="text-muted">
+                You have not applied for any jobs.
+            </p>
+
+            <a href="{% url 'candidate_jobs' %}"
+               class="btn btn-primary">
+                Browse Jobs
+            </a>
+
+        </div>
+
+        {% endif %}
 
     </div>
 

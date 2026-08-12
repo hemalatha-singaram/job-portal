@@ -1,5 +1,13 @@
 from django.contrib import admin
-from .models import *
+
+from .models import (
+    CandidateProfile,
+    JobApplication,
+    Notification,
+    Interview,
+    Offer
+)
+
 
 admin.site.register(CandidateProfile)
 admin.site.register(JobApplication)
