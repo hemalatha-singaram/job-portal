@@ -1,119 +1,108 @@
 {% extends 'recruiter/base.html' %}
 
-{% block title %}
-Dashboard
-{% endblock %}
+{% block title %}Recruiter Dashboard{% endblock %}
+{% block page_title %}Recruiter Dashboard{% endblock %}
 
 {% block content %}
-
-<h2 class="mb-4">Recruiter Dashboard</h2>
-
-<!-- Statistics Cards -->
 <div class="row g-4">
-
-    <div class="col-md-4">
-        <div class="card bg-primary text-white p-4 text-center">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white p-4 text-center h-100">
             <h1>{{ total_jobs }}</h1>
             <h5>Total Jobs</h5>
         </div>
     </div>
-
-    <div class="col-md-4">
-        <div class="card bg-success text-white p-4 text-center">
+    <div class="col-md-3">
+        <div class="card bg-success text-white p-4 text-center h-100">
             <h1>{{ active_jobs }}</h1>
             <h5>Active Jobs</h5>
         </div>
     </div>
-
-    <div class="col-md-4">
-        <div class="card bg-danger text-white p-4 text-center">
+    <div class="col-md-3">
+        <div class="card bg-warning p-4 text-center h-100">
+            <h1>{{ total_applications }}</h1>
+            <h5>Total Applications</h5>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white p-4 text-center h-100">
             <h1>{{ closed_jobs }}</h1>
             <h5>Closed Jobs</h5>
         </div>
     </div>
-
 </div>
 
-<!-- Quick Actions -->
+<div class="row g-4 mt-1">
+    <div class="col-md-4">
+        <div class="card border-warning p-3 text-center h-100">
+            <h3>{{ pending_count }}</h3>
+            <span class="text-muted">Pending Applications</span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-success p-3 text-center h-100">
+            <h3>{{ shortlisted_count }}</h3>
+            <span class="text-muted">Shortlisted</span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-info p-3 text-center h-100">
+            <h3>{{ interview_count }}</h3>
+            <span class="text-muted">Interviews</span>
+        </div>
+    </div>
+</div>
+
 <div class="card mt-4 shadow-sm">
-
     <div class="card-body">
-
         <h4 class="mb-3">Quick Actions</h4>
-
-        <a href="{% url 'post_job' %}" class="btn btn-success me-2">
-            ➕ Post Job
-        </a>
-
-        <a href="{% url 'view_jobs' %}" class="btn btn-primary me-2">
-            💼 Manage Jobs
-        </a>
-
-        <a href="{% url 'profile' %}" class="btn btn-dark">
-            👤 Profile
-        </a>
-
+        <a href="{% url 'post_job' %}" class="btn btn-success me-2">➕ Post Job</a>
+        <a href="{% url 'view_jobs' %}" class="btn btn-primary me-2">💼 Manage Jobs</a>
+        <a href="{% url 'profile' %}" class="btn btn-dark">👤 Profile</a>
     </div>
-
 </div>
 
-<!-- Recent Jobs -->
 <div class="card mt-4 shadow-sm">
-
     <div class="card-body">
-
-        <h4 class="mb-3">Recent Jobs</h4>
-
-        <table class="table table-hover align-middle">
-
-            <thead class="table-dark">
-
-                <tr>
-                    <th>Job Title</th>
-                    <th>Company</th>
-                    <th>Location</th>
-                    <th>Posted Date</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-            {% for job in recent_jobs %}
-
-                <tr>
-
-                    <td>
-                        <a href="{% url 'job_details' job.id %}" class="text-decoration-none fw-bold">
-                            {{ job.title }}
-                        </a>
-                    </td>
-
-                    <td>{{ job.company }}</td>
-
-                    <td>{{ job.location }}</td>
-
-                    <td>{{ job.posted_date|date:"d M Y" }}</td>
-
-                </tr>
-
-            {% empty %}
-
-                <tr>
-
-                    <td colspan="4" class="text-center text-muted">
-                        No jobs available.
-                    </td>
-
-                </tr>
-
-            {% endfor %}
-
-            </tbody>
-
-        </table>
-
+        <h4 class="mb-3">Recent Jobs & Candidate Activity</h4>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Company</th>
+                        <th>Location</th>
+                        <th>Applications</th>
+                        <th>Posted Date</th>
+                        <th>Recruiter Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for job in recent_jobs %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'job_details' job.id %}" class="text-decoration-none fw-bold">
+                                {{ job.title }}
+                            </a>
+                        </td>
+                        <td>{{ job.company }}</td>
+                        <td>{{ job.location }}</td>
+                        <td>
+                            <span class="badge bg-primary">
+                                {{ job.jobapplication_set.count }}
+                            </span>
+                        </td>
+                        <td>{{ job.posted_date|date:"d M Y" }}</td>
+                        <td>
+                            <a href="{% url 'job_applications' job.id %}" class="btn btn-primary btn-sm">View Applicants</a>
+                            <a href="{% url 'ranked_candidates' job.id %}" class="btn btn-outline-success btn-sm">Priority Ranking</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted">No jobs available.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-
 </div>
 {% endblock %}
