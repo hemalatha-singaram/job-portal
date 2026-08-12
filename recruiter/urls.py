@@ -20,4 +20,6 @@ urlpatterns = [
 
     path("delete/<int:job_id>/", views.delete_job, name="delete_job"),
 
+    path("applications/", views.applications, name="recruiter_applications"),
+
 ]
