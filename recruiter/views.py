@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User
 from .models import Job
+from candidate.models import JobApplication
 from .forms import JobForm
 from django.db.models import Q
 
@@ -171,3 +172,15 @@ def delete_job(request, job_id):
 @login_required(login_url="/recruiter/login/")
 def profile(request):
     return render(request, "recruiter/profile.html")
+
+
+@login_required(login_url="/recruiter/login/")
+def applications(request):
+    applications = JobApplication.objects.select_related(
+        "candidate__user",
+        "job"
+    ).order_by("-applied_date")
+
+    return render(request, "recruiter/applications.html", {
+        "applications": applications
+    })

@@ -152,6 +152,7 @@ def jobs(request):
     )
 
 
+
 @login_required
 def job_detail(request, id):
 
@@ -177,12 +178,28 @@ def job_detail(request, id):
         job=job
     ).exists()
 
+    # Candidate skills
+    candidate_skills = [
+        skill.strip()
+        for skill in profile.skills.split(',')
+        if skill.strip()
+    ]
+
+    # Match candidate skills with job required skills
+    matched, missing, percentage = match_skills(
+        candidate_skills,
+        job.skills
+    )
+
     return render(
         request,
         'candidate/job_details.html',
         {
             'job': job,
-            'applied': applied
+            'applied': applied,
+            'matched_skills': matched,
+            'missing_skills': missing,
+            'matching_percentage': percentage
         }
     )
 

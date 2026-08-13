@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Application Management</title>
+</head>
+<body>
+
+    <h1>Application Management</h1>
+
+    {% if applications %}
+        {% for application in applications %}
+
+            <div>
+                <h3>{{ application.candidate.user.username }}</h3>
+
+                <p><strong>Job:</strong> {{ application.job.title }}</p>
+
+                <p><strong>Matching Score:</strong>
+                    {{ application.matching_percentage }}%
+                </p>
+
+                <p><strong>Matched Skills:</strong>
+                    {{ application.matched_skills }}
+                </p>
+
+                <p><strong>Missing Skills:</strong>
+                    {{ application.missing_skills }}
+                </p>
+
+                <p><strong>Status:</strong>
+                    {{ application.status }}
+                </p>
+
+                <p><strong>Applied Date:</strong>
+                    {{ application.applied_date }}
+                </p>
+
+                <hr>
+            </div>
+
+        {% endfor %}
+    {% else %}
+        <p>No applications received yet.</p>
+    {% endif %}
+
+</body>
+</html>

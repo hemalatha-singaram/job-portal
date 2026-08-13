@@ -15,8 +15,16 @@ def match_skills(candidate_skills, job_skills):
         matching_percentage
     """
 
-    if not candidate_skills or not job_skills:
-        return [], job_skills, 0
+    if not job_skills:
+        return [], [], 0
+
+    if not candidate_skills:
+        missing = [
+            skill.strip()
+            for skill in job_skills.split(',')
+            if skill.strip()
+        ]
+        return [], missing, 0
 
     candidate = {
         normalize_skill(skill)
@@ -33,7 +41,6 @@ def match_skills(candidate_skills, job_skills):
     missing = []
 
     for skill in required:
-
         normalized = normalize_skill(skill)
 
         if normalized in candidate:
