@@ -4,24 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Campus Job Portal{% endblock %}</title>
+    <title>{% block title %}CampusHire{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
-    <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="{% url 'home' %}">CampusHire</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'candidate_jobs' %}">Jobs</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'candidate_login' %}">Student Login</a></li>
-                <li class="nav-item"><a class="btn btn-primary btn-sm px-3" href="{% url 'recruiter_login' %}">Recruiter Login</a></li>
-            </ul>
+<nav class="topbar">
+    <div class="container d-flex align-items-center justify-content-between gap-3">
+        <a class="brand-mark" href="{% url 'home' %}">CampusHire</a>
+        <div class="top-nav-links">
+            <a href="{% url 'home' %}" class="nav-pill">Home</a>
+            <a href="{% url 'candidate_jobs' %}" class="nav-pill">Jobs</a>
+            <a href="{% url 'candidate_login' %}" class="nav-pill">Student Login</a>
+            <a href="{% url 'recruiter_login' %}" class="nav-pill nav-pill-primary">Recruiter Login</a>
         </div>
     </div>
 </nav>
@@ -41,8 +36,8 @@
 
 <footer class="site-footer">
     <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
-        <span>CampusHire Job Portal</span>
-        <span>Students apply. Recruiters hire.</span>
+        <span>CampusHire</span>
+        <span>Students apply · Recruiters hire</span>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
