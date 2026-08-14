@@ -3,22 +3,28 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User
+from django.db.models import Q
 from .models import Job
 from candidate.models import JobApplication
 from .forms import JobForm
-from django.db.models import Q
+
+
+def _is_recruiter(user):
+    return user.is_authenticated and user.groups.filter(name='Recruiters').exists()
 
 
 def register(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        first_name = request.POST.get("first_name", "")
-        last_name = request.POST.get("last_name", "")
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
 
         if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists.")
+            messages.error(request, 'Username already exists.')
+        elif not username or not password:
+            messages.error(request, 'Username and password are required.')
         else:
             user = User.objects.create_user(
                 username=username,
@@ -27,78 +33,81 @@ def register(request):
                 first_name=first_name,
                 last_name=last_name,
             )
-            group, _ = Group.objects.get_or_create(name="Recruiters")
+            group, _ = Group.objects.get_or_create(name='Recruiters')
             user.groups.add(group)
-            messages.success(request, "Recruiter account created. Please login.")
-            return redirect("recruiter_login")
+            messages.success(request, 'Recruiter account created. Please login.')
+            return redirect('recruiter_login')
 
-    return render(request, "recruiter/register.html")
+    return render(request, 'recruiter/register.html')
 
 
 def recruiter_login(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         user = authenticate(
             request,
-            username=request.POST.get("username"),
-            password=request.POST.get("password"),
+            username=request.POST.get('username'),
+            password=request.POST.get('password'),
         )
-        if user:
+        if user and _is_recruiter(user):
             login(request, user)
-            return redirect("dashboard")
-        messages.error(request, "Invalid username or password.")
+            return redirect('dashboard')
 
-    return render(request, "recruiter/login.html")
+        messages.error(request, 'Invalid recruiter credentials.')
+
+    return render(request, 'recruiter/login.html')
 
 
 def recruiter_logout(request):
     logout(request)
-    return redirect("recruiter_login")
+    return redirect('recruiter_login')
 
 
-# ==========================
-# Recruiter Dashboard
-# ==========================
-@login_required(login_url="/recruiter/login/")
+@login_required(login_url='/recruiter/login/')
 def dashboard(request):
-    jobs = Job.objects.all()
+    if not _is_recruiter(request.user):
+        logout(request)
+        messages.error(request, 'Recruiter access only.')
+        return redirect('recruiter_login')
+
+    jobs = Job.objects.filter(owner=request.user)
+    applications = JobApplication.objects.filter(job__owner=request.user)
 
     context = {
-        "total_jobs": jobs.count(),
-        "active_jobs": jobs.count(),   # Placeholder
-        "closed_jobs": 0,              # Placeholder
-        "recent_jobs": jobs.order_by("-posted_date")[:5],
+        'total_jobs': jobs.count(),
+        'active_jobs': jobs.count(),
+        'closed_jobs': 0,
+        'application_count': applications.count(),
+        'recent_jobs': jobs.order_by('-posted_date')[:5],
     }
+    return render(request, 'recruiter/dashboard.html', context)
 
-    return render(request, "recruiter/dashboard.html", context)
 
-
-# ==========================
-# Post Job
-# ==========================
-@login_required(login_url="/recruiter/login/")
+@login_required(login_url='/recruiter/login/')
 def post_job(request):
-    if request.method == "POST":
+    if not _is_recruiter(request.user):
+        return redirect('recruiter_login')
+
+    if request.method == 'POST':
         form = JobForm(request.POST)
-
         if form.is_valid():
-            form.save()
-            messages.success(request, "Job posted successfully.")
-            return redirect("view_jobs")
-
+            job = form.save(commit=False)
+            job.owner = request.user
+            job.save()
+            messages.success(request, 'Job posted successfully.')
+            return redirect('view_jobs')
     else:
         form = JobForm()
 
-    return render(request, "recruiter/post_job.html", {"form": form})
+    return render(request, 'recruiter/post_job.html', {'form': form})
 
-# ==========================
-# View Jobs
-# ==========================
 
-@login_required(login_url="/recruiter/login/")
+@login_required(login_url='/recruiter/login/')
 def view_jobs(request):
-    search = request.GET.get("search")
+    if not _is_recruiter(request.user):
+        return redirect('recruiter_login')
 
-    jobs = Job.objects.all().order_by("-posted_date")
+    search = request.GET.get('search', '').strip()
+    jobs = Job.objects.filter(owner=request.user).order_by('-posted_date')
 
     if search:
         jobs = jobs.filter(
@@ -107,80 +116,90 @@ def view_jobs(request):
             Q(location__icontains=search)
         )
 
-    return render(request, "recruiter/view_jobs.html", {
-        "jobs": jobs
-    })
+    return render(request, 'recruiter/view_jobs.html', {'jobs': jobs})
 
 
-# ==========================
-# Job Details
-# ==========================
-@login_required(login_url="/recruiter/login/")
+@login_required(login_url='/recruiter/login/')
 def job_details(request, job_id):
-    job = get_object_or_404(Job, id=job_id)
+    if not _is_recruiter(request.user):
+        return redirect('recruiter_login')
 
-    return render(request, "recruiter/job_details.html", {
-        "job": job
-    })
+    job = get_object_or_404(Job, id=job_id, owner=request.user)
+    return render(request, 'recruiter/job_details.html', {'job': job})
 
 
-# ==========================
-# Edit Job
-# ==========================
-@login_required(login_url="/recruiter/login/")
+@login_required(login_url='/recruiter/login/')
 def edit_job(request, job_id):
+    if not _is_recruiter(request.user):
+        return redirect('recruiter_login')
 
-    job = get_object_or_404(Job, id=job_id)
+    job = get_object_or_404(Job, id=job_id, owner=request.user)
 
-    if request.method == "POST":
-
+    if request.method == 'POST':
         form = JobForm(request.POST, instance=job)
-
         if form.is_valid():
             form.save()
-            messages.success(request, "Job updated successfully.")
-            return redirect("view_jobs")
-
+            messages.success(request, 'Job updated successfully.')
+            return redirect('view_jobs')
     else:
         form = JobForm(instance=job)
 
-    return render(request, "recruiter/post_job.html", {
-        "form": form
-    })
+    return render(request, 'recruiter/post_job.html', {'form': form, 'editing': True})
 
 
-# ==========================
-# Delete Job
-# ==========================
-@login_required(login_url="/recruiter/login/")
+@login_required(login_url='/recruiter/login/')
 def delete_job(request, job_id):
+    if not _is_recruiter(request.user):
+        return redirect('recruiter_login')
 
-    job = get_object_or_404(Job, id=job_id)
+    job = get_object_or_404(Job, id=job_id, owner=request.user)
 
-    if request.method == "POST":
+    if request.method == 'POST':
         job.delete()
-        messages.success(request, "Job deleted successfully.")
-        return redirect("view_jobs")
+        messages.success(request, 'Job deleted successfully.')
+        return redirect('view_jobs')
 
-    return render(request, "recruiter/delete_job.html", {
-        "job": job
-    })
-# ==========================
-# Recruiter Profile
-# ==========================
+    return render(request, 'recruiter/delete_job.html', {'job': job})
 
-@login_required(login_url="/recruiter/login/")
+
+@login_required(login_url='/recruiter/login/')
 def profile(request):
-    return render(request, "recruiter/profile.html")
+    if not _is_recruiter(request.user):
+        return redirect('recruiter_login')
+    return render(request, 'recruiter/profile.html')
 
 
-@login_required(login_url="/recruiter/login/")
+@login_required(login_url='/recruiter/login/')
 def applications(request):
-    applications = JobApplication.objects.select_related(
-        "candidate__user",
-        "job"
-    ).order_by("-applied_date")
+    if not _is_recruiter(request.user):
+        return redirect('recruiter_login')
 
-    return render(request, "recruiter/applications.html", {
-        "applications": applications
+    applications = JobApplication.objects.select_related(
+        'candidate__user', 'job'
+    ).filter(job__owner=request.user).order_by('-ats_score', '-applied_date')
+
+    return render(request, 'recruiter/applications.html', {
+        'applications': applications,
     })
+
+
+@login_required(login_url='/recruiter/login/')
+def update_application_status(request, application_id):
+    if not _is_recruiter(request.user):
+        return redirect('recruiter_login')
+
+    application = get_object_or_404(
+        JobApplication,
+        id=application_id,
+        job__owner=request.user,
+    )
+
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        valid_statuses = {choice[0] for choice in JobApplication.STATUS}
+        if status in valid_statuses:
+            application.status = status
+            application.save(update_fields=['status'])
+            messages.success(request, 'Application status updated.')
+
+    return redirect('recruiter_applications')
