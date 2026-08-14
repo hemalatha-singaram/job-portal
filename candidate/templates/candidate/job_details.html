@@ -22,7 +22,6 @@
 
     <h5>Required Skills</h5>
     <div class="skill-list mb-4">
-        {% for skill in job.skills.split|default:'' %}{% endfor %}
         <span class="skill-chip">{{ job.skills }}</span>
     </div>
 
@@ -37,7 +36,7 @@
                 {{ matching_percentage }}% match
             </span>
         </div>
-        <p class="small text-muted-soft mb-3">This result is shown only after you apply with your resume.</p>
+        <p class="small text-muted-soft mb-3">This result is shown after you apply with your resume.</p>
         {% if matched_skills %}
         <div class="mb-2"><strong>Matched skills</strong></div>
         <div class="skill-list mb-3">
