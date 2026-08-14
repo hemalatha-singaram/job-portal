@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.models import User
-
 from .models import CandidateProfile, JobApplication
 
 
@@ -22,8 +21,7 @@ class ProfileForm(forms.ModelForm):
         model = CandidateProfile
         fields = [
             'phone', 'address', 'city', 'state', 'qualification',
-            'tenth_percentage', 'intermediate_percentage',
-            'graduation_percentage', 'graduation_cgpa',
+            'tenth_percentage', 'intermediate_percentage', 'graduation_percentage', 'graduation_cgpa',
             'skills', 'experience_level', 'projects', 'resume', 'profile_image',
         ]
         widgets = {
@@ -64,14 +62,26 @@ class ProfileForm(forms.ModelForm):
             self.add_error('graduation_cgpa', 'Enter a CGPA between 0 and 10.')
         return cleaned
 
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        levels = {
+            'Fresher': 0,
+            '<1 year': 0,
+            '1–2 years': 1,
+            '2–3 years': 2,
+            '3–5 years': 3,
+            '5+ years': 5,
+        }
+        profile.experience = levels.get(profile.experience_level, profile.experience)
+        if commit:
+            profile.save()
+        return profile
+
 
 class JobApplicationForm(forms.ModelForm):
     resume = forms.FileField(
         required=True,
-        widget=forms.ClearableFileInput(attrs={
-            'class': 'form-control',
-            'accept': '.pdf,.docx'
-        }),
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.pdf,.docx'}),
         help_text='Upload your latest PDF or DOCX resume. It will be parsed for ATS scoring.'
     )
     phone = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
