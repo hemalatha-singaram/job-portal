@@ -1,47 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Application Management</title>
-</head>
-<body>
+{% extends 'recruiter/base.html' %}
 
-    <h1>Application Management</h1>
+{% block page_title %}Candidate Applications{% endblock %}
+
+{% block content %}
+<div class="portal-card">
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-4">
+        <div>
+            <span class="eyebrow">Your jobs only</span>
+            <h3 class="fw-bold mb-1">Candidate Applications</h3>
+            <p class="text-muted-soft mb-0">Review and update applicants for jobs posted by your account.</p>
+        </div>
+        <span class="summary-badge">{{ applications|length }} applications</span>
+    </div>
 
     {% if applications %}
-        {% for application in applications %}
-
-            <div>
-                <h3>{{ application.candidate.user.username }}</h3>
-
-                <p><strong>Job:</strong> {{ application.job.title }}</p>
-
-                <p><strong>Matching Score:</strong>
-                    {{ application.matching_percentage }}%
-                </p>
-
-                <p><strong>Matched Skills:</strong>
-                    {{ application.matched_skills }}
-                </p>
-
-                <p><strong>Missing Skills:</strong>
-                    {{ application.missing_skills }}
-                </p>
-
-                <p><strong>Status:</strong>
-                    {{ application.status }}
-                </p>
-
-                <p><strong>Applied Date:</strong>
-                    {{ application.applied_date }}
-                </p>
-
-                <hr>
-            </div>
-
-        {% endfor %}
+    <div class="table-responsive">
+        <table class="table align-middle recruiter-table">
+            <thead>
+                <tr>
+                    <th>Candidate</th>
+                    <th>Job</th>
+                    <th>ATS Score</th>
+                    <th>Skills</th>
+                    <th>Experience</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for application in applications %}
+                <tr>
+                    <td>
+                        <strong>{{ application.candidate.user.get_full_name|default:application.candidate.user.username }}</strong>
+                        <div class="small text-muted-soft">{{ application.candidate.user.email }}</div>
+                    </td>
+                    <td>{{ application.job.title }}</td>
+                    <td><span class="score-pill {% if application.ats_score >= 70 %}score-good{% elif application.ats_score >= 40 %}score-mid{% else %}score-low{% endif %}">{{ application.ats_score }}%</span></td>
+                    <td>
+                        <div class="small"><strong>Matched:</strong> {{ application.matched_skills|default:'None' }}</div>
+                        <div class="small text-danger"><strong>Missing:</strong> {{ application.missing_skills|default:'None' }}</div>
+                    </td>
+                    <td>{{ application.candidate.experience_level }}</td>
+                    <td><span class="status-badge">{{ application.status }}</span></td>
+                    <td>
+                        <form method="POST" action="{% url 'update_application_status' application.id %}" class="d-flex gap-2">
+                            {% csrf_token %}
+                            <select name="status" class="form-select form-select-sm status-select">
+                                {% for value,label in application.STATUS %}
+                                    <option value="{{ value }}" {% if application.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn btn-sm btn-primary">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
-        <p>No applications received yet.</p>
+        <div class="empty-state">
+            <h5>No applications yet</h5>
+            <p class="text-muted-soft">Applications for your own job postings will appear here.</p>
+        </div>
     {% endif %}
-
-</body>
-</html>
+</div>
+{% endblock %}
