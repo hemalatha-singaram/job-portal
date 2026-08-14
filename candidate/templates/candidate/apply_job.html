@@ -3,16 +3,45 @@
 {% block page_title %}Apply for Job{% endblock %}
 
 {% block content %}
-<div class="portal-card">
-    <h3 class="fw-bold">{{ job.title }}</h3>
-    <p class="text-muted-soft">{{ job.company }} · {{ job.location }}</p>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="d-flex gap-2">
-            <button class="btn btn-success">Submit Application</button>
-            <a href="{% url 'candidate_jobs' %}" class="btn btn-outline-secondary">Cancel</a>
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+        <div class="portal-card">
+            <div class="mb-4">
+                <span class="eyebrow">Application</span>
+                <h3 class="fw-bold mb-1">{{ job.title }}</h3>
+                <p class="text-muted-soft mb-0">{{ job.company }} · {{ job.location }}</p>
+            </div>
+
+            <div class="application-note mb-4">
+                <strong>Resume-based ATS screening</strong>
+                <p class="mb-0 small">Upload your latest resume and the system will extract your skills, experience and projects, then calculate your fit score against this job.</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Phone</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Qualification</label>
+                        {{ form.qualification }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Resume <span class="text-danger">*</span></label>
+                        {{ form.resume }}
+                        <div class="form-text">PDF or DOCX · maximum 5 MB</div>
+                        {% if form.resume.errors %}<div class="text-danger small mt-1">{{ form.resume.errors }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button class="btn btn-primary px-4">Submit Application & Calculate ATS</button>
+                    <a href="{% url 'candidate_job_detail' job.id %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 {% endblock %}
