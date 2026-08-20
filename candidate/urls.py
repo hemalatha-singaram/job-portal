@@ -1,7 +1,10 @@
 from django.urls import path
 from . import views
+from django.core.mail import send_mail
+from django.conf import settings
 
 urlpatterns = [
+
     path("register/", views.register, name="candidate_register"),
     path("login/", views.candidate_login, name="candidate_login"),
     path("logout/", views.candidate_logout, name="candidate_logout"),
@@ -19,4 +22,67 @@ urlpatterns = [
     path("notifications/", views.notifications, name="notifications"),
     path("analytics/", views.analytics_dashboard, name="candidate_analytics"),
     path("analytics/export/", views.analytics_export, name="analytics_export"),
+
+    #for test email
+    path('test-email/', views.test_email, name='test_email'),
+
+    
+    path('', views.dashboard, name='candidate_dashboard'),
+
+    path('register/', views.register, name='candidate_register'),
+
+    path('login/', views.candidate_login, name='candidate_login'),
+
+    path('logout/', views.candidate_logout, name='candidate_logout'),
+
+    path('jobs/', views.jobs, name='candidate_jobs'),
+
+    path(
+        'job/<int:id>/',
+        views.job_detail,
+        name='candidate_job_detail'
+    ),
+
+    path(
+        'apply/<int:id>/',
+        views.apply_job,
+        name='apply_job'
+    ),
+
+    path(
+        'applications/',
+        views.my_applications,
+        name='applications'
+    ),
+
+    path(
+        'shortlisted/',
+        views.shortlisted,
+        name='shortlisted'
+    ),
+
+    path(
+        'interviews/',
+        views.interviews,
+        name='interviews'
+    ),
+
+    path(
+        'offers/',
+        views.offers,
+        name='offers'
+    ),
+
+    path(
+        'profile/',
+        views.profile,
+        name='candidate_profile'
+    ),
+
+    path(
+        'notifications/',
+        views.notifications,
+        name='notifications'
+    ),
+
 ]

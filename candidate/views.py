@@ -22,6 +22,10 @@ from .certificate_extracter import extract_certificates
 from .resume_parser import extract_resume_text
 from .skill_extracter import extract_skills
 from .skill_matcher import match_skills
+#to test the email notification in terminal
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import HttpResponse
 
 
 def _get_profile(user):
@@ -316,11 +320,41 @@ def shortlisted(request):
     applications = JobApplication.objects.filter(candidate=profile, status="Shortlisted").select_related("job")
     return render(request, "candidate/my_applications.html", {"applications": applications, "shortlisted_only": True})
 
+    profile = CandidateProfile.objects.get(user=request.user)
+
+    applications = JobApplication.objects.filter(
+        candidate=profile,
+        status="Shortlisted"
+    ).order_by("-applied_date")
+
+
+    return render(
+        request,
+        "candidate/shortlisted.html",
+        {
+            "applications": applications
+        }
+    )
 
 @login_required
 def interviews(request):
+
     interviews = Interview.objects.filter(application__candidate__user=request.user).select_related("application", "application__job")
     return render(request, "candidate/interviews.html", {"interviews": interviews})
+
+    profile = CandidateProfile.objects.get(user=request.user)
+
+    interviews = Interview.objects.filter(
+        application__candidate=profile).order_by("interview_date", "interview_time")
+    
+
+    return render(
+        request,
+        'candidate/interviews.html',
+        {
+            'interviews': interviews
+        }
+    )
 
 
 @login_required
@@ -399,4 +433,28 @@ def profile(request):
             return redirect("candidate_profile")
     else:
         form = ProfileForm(instance=p)
+
     return render(request, "candidate/profile.html", {"form": form, "profile": p})
+
+
+    return render(
+        request,
+        'candidate/profile.html',
+        {
+            'form': form,
+            'profile': p
+        }
+    )
+
+def test_email(request):
+    candidate_email = request.user.email
+    send_mail(
+        subject='Job Portal Test Notification',
+        message='Your email notification system is working successfully.',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[candidate_email],
+        fail_silently=False,
+    )
+
+    return HttpResponse(f"Test email sent successfully to {candidate_email}")
+
