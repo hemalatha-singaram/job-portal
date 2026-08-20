@@ -22,4 +22,8 @@ urlpatterns = [
 
     path("applications/", views.applications, name="recruiter_applications"),
 
+    path("applications/<int:application_id>/schedule/", views.schedule_interview, name="schedule_interview"),
+
+    path("applications/<int:application_id>/cancel-interview/", views.cancel_interview, name="cancel_interview"),
+
 ]

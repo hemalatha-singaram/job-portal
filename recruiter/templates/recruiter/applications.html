@@ -3,44 +3,130 @@
 <head>
     <title>Application Management</title>
 </head>
+
 <body>
 
     <h1>Application Management</h1>
 
     {% if applications %}
+
         {% for application in applications %}
 
             <div>
-                <h3>{{ application.candidate.user.username }}</h3>
 
-                <p><strong>Job:</strong> {{ application.job.title }}</p>
+                <h3>
+                    {{ application.candidate.user.username }}
+                </h3>
 
-                <p><strong>Matching Score:</strong>
+                <p>
+                    <strong>Job:</strong>
+                    {{ application.job.title }}
+                </p>
+
+                <p>
+                    <strong>Matching Score:</strong>
                     {{ application.matching_percentage }}%
                 </p>
 
-                <p><strong>Matched Skills:</strong>
+                <p>
+                    <strong>Matched Skills:</strong>
                     {{ application.matched_skills }}
                 </p>
 
-                <p><strong>Missing Skills:</strong>
+                <p>
+                    <strong>Missing Skills:</strong>
                     {{ application.missing_skills }}
                 </p>
 
-                <p><strong>Status:</strong>
+                <p>
+                    <strong>Status:</strong>
                     {{ application.status }}
                 </p>
 
-                <p><strong>Applied Date:</strong>
+                <p>
+                    <strong>Applied Date:</strong>
                     {{ application.applied_date }}
                 </p>
 
+
+                <!-- Interview Details -->
+
+                {% if application.interview_set.all %}
+
+                    {% for interview in application.interview_set.all %}
+
+                        <hr>
+
+                        <h3>Interview Details</h3>
+
+                        <p>
+                            <strong>Interview Date:</strong>
+                            {{ interview.interview_date }}
+                        </p>
+
+                        <p>
+                            <strong>Interview Time:</strong>
+                            {{ interview.interview_time|time:"g:i A" }}
+                        </p>
+
+                        <p>
+                            <strong>Mode:</strong>
+                            {{ interview.mode }}
+                        </p>
+
+                        {% if interview.meeting_link %}
+                            <p>
+                                <strong>Meeting Link:</strong>
+                                <a href="{{ interview.meeting_link }}" target="_blank">
+                                    Join Interview
+                                </a>
+                            </p>
+                        {% endif %}
+
+                        {% if interview.remarks %}
+                            <p>
+                                <strong>Remarks:</strong>
+                                {{ interview.remarks }}
+                            </p>
+                        {% endif %}
+
+                        <!-- Cancel Interview -->
+
+                        <form method="POST"
+                              action="{% url 'cancel_interview' application.id %}"
+                              style="margin-top: 10px;">
+
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    onclick="return confirm('Are you sure you want to cancel this interview?');">
+                                Cancel Interview
+                            </button>
+
+                        </form>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <a href="{% url 'schedule_interview' application.id %}">
+                        <button type="button">
+                            Schedule Interview
+                        </button>
+                    </a>
+
+                {% endif %}
+
                 <hr>
+
             </div>
 
         {% endfor %}
+
     {% else %}
+
         <p>No applications received yet.</p>
+
     {% endif %}
 
 </body>

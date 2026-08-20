@@ -23,7 +23,7 @@ class CandidateProfile(models.Model):
 
     # Resume
     resume = models.FileField(
-        upload_to='resumes/',
+        upload_to="resumes/",
         blank=True,
         null=True
     )
@@ -32,7 +32,7 @@ class CandidateProfile(models.Model):
     resume_text = models.TextField(blank=True)
 
     profile_image = models.ImageField(
-        upload_to='profiles/',
+        upload_to="profiles/",
         blank=True,
         null=True
     )
@@ -44,11 +44,11 @@ class CandidateProfile(models.Model):
 class JobApplication(models.Model):
 
     STATUS = (
-        ('Applied', 'Applied'),
-        ('Shortlisted', 'Shortlisted'),
-        ('Interview', 'Interview'),
-        ('Rejected', 'Rejected'),
-        ('Selected', 'Selected'),
+        ("Applied", "Applied"),
+        ("Shortlisted", "Shortlisted"),
+        ("Interview", "Interview"),
+        ("Rejected", "Rejected"),
+        ("Selected", "Selected"),
     )
 
     candidate = models.ForeignKey(
@@ -57,7 +57,7 @@ class JobApplication(models.Model):
     )
 
     job = models.ForeignKey(
-        'recruiter.Job',
+        "recruiter.Job",
         on_delete=models.CASCADE
     )
 
@@ -75,12 +75,15 @@ class JobApplication(models.Model):
     status = models.CharField(
         max_length=20,
         choices=STATUS,
-        default='Applied'
+        default="Applied"
     )
 
     def __str__(self):
         return f"{self.candidate.user.username} - {self.job.title}"
+
+
 class Notification(models.Model):
+
     candidate = models.ForeignKey(
         CandidateProfile,
         on_delete=models.CASCADE
@@ -91,8 +94,12 @@ class Notification(models.Model):
     is_read = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"{self.candidate.user.username} - {self.title}"
+
 
 class Interview(models.Model):
+
     application = models.ForeignKey(
         JobApplication,
         on_delete=models.CASCADE
@@ -104,8 +111,15 @@ class Interview(models.Model):
     meeting_link = models.URLField(blank=True)
     remarks = models.TextField(blank=True)
 
+    def __str__(self):
+        return (
+            f"{self.application.candidate.user.username} - "
+            f"{self.application.job.title}"
+        )
+
 
 class Offer(models.Model):
+
     application = models.OneToOneField(
         JobApplication,
         on_delete=models.CASCADE
@@ -119,7 +133,10 @@ class Offer(models.Model):
     joining_date = models.DateField()
 
     offer_letter = models.FileField(
-        upload_to='offers/'
+        upload_to="offers/"
     )
 
     accepted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Offer - {self.application.candidate.user.username}"

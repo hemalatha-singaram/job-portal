@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Schedule Interview</title>
+</head>
+
+<body>
+
+    <h1>Schedule Interview</h1>
+
+    <h3>
+        Candidate:
+        {{ application.candidate.user.username }}
+    </h3>
+
+    <p>
+        <strong>Job:</strong>
+        {{ application.job.title }}
+    </p>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <label>Interview Date:</label><br>
+        <input
+            type="date"
+            name="interview_date"
+            required
+        >
+
+        <br><br>
+
+        <label>Interview Time:</label><br>
+
+        <select name="interview_hour" required>
+            <option value="">Hour</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+        </select>
+
+        <select name="interview_minute" required>
+            <option value="">Minute</option>
+            <option value="00">00</option>
+            <option value="15">15</option>
+            <option value="30">30</option>
+            <option value="45">45</option>
+        </select>
+
+        <select name="interview_period" required>
+            <option value="">AM/PM</option>
+            <option value="AM">AM</option>
+            <option value="PM">PM</option>
+        </select>
+
+        <br><br>
+
+        <label>Mode:</label><br>
+
+        <select name="mode" required>
+            <option value="">Select Mode</option>
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
+        </select>
+
+        <br><br>
+
+        <label>Meeting Link:</label><br>
+
+        <input
+            type="url"
+            name="meeting_link"
+            placeholder="https://meet.google.com/..."
+        >
+
+        <br><br>
+
+        <label>Remarks:</label><br>
+
+        <textarea
+            name="remarks"
+            rows="4"
+            placeholder="Enter interview instructions or remarks"
+        ></textarea>
+
+        <br><br>
+
+        <button type="submit">
+            Schedule Interview
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="{% url 'recruiter_applications' %}">
+        Back to Applications
+    </a>
+
+</body>
+</html>
