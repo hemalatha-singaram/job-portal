@@ -1,0 +1,57 @@
+{% extends 'candidate/base.html' %}
+{% block title %}Candidate Analytics | CampusHire{% endblock %}
+{% block page_title %}Application Analytics{% endblock %}
+{% block content %}
+<div class="analytics-topbar">
+    <div><div class="eyebrow">YOUR APPLICATION JOURNEY</div><h2>Track every application at a glance.</h2><p>See your application pipeline, interview progress and ATS performance in one place.</p></div>
+    <a href="{% url 'analytics_export' %}" class="btn btn-outline-primary">Export CSV</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="stat-card"><div class="stat-value text-primary">{{ total }}</div><div class="stat-label">Total Applications</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-value text-success">{{ status_counts.Shortlisted }}</div><div class="stat-label">Shortlisted</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-value">{{ interview_count }}</div><div class="stat-label">Interviews</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-value text-primary">{{ average_ats }}%</div><div class="stat-label">Average ATS Score</div></div></div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6"><div class="card p-4"><div class="small-muted">Shortlist rate</div><div class="fs-3 fw-bold">{{ shortlist_rate }}%</div><div class="small-muted">Shortlisted applications ÷ total applications</div></div></div>
+    <div class="col-md-6"><div class="card p-4"><div class="small-muted">Selection rate</div><div class="fs-3 fw-bold">{{ selection_rate }}%</div><div class="small-muted">Selected applications ÷ total applications</div></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7"><div class="card p-4 h-100"><div class="section-title">Application status distribution</div><p class="small-muted">Each application is counted once using its latest status.</p>{% if total %}<div class="analytics-chart-wrap"><canvas id="statusChart"></canvas></div>{% else %}<div class="py-5 text-center text-muted">No applications yet. Apply to a job to start building your analytics.</div>{% endif %}</div></div>
+    <div class="col-lg-5"><div class="card p-4 h-100"><div class="section-title">Application summary</div>
+        <div class="analytics-status-row"><span><i class="status-dot applied"></i>Applied</span><strong>{{ status_counts.Applied }}</strong></div>
+        <div class="analytics-status-row"><span><i class="status-dot shortlisted"></i>Shortlisted</span><strong>{{ status_counts.Shortlisted }}</strong></div>
+        <div class="analytics-status-row"><span><i class="status-dot interview"></i>Interview</span><strong>{{ status_counts.Interview }}</strong></div>
+        <div class="analytics-status-row"><span><i class="status-dot selected"></i>Selected / Offer</span><strong>{{ status_counts.Selected }}</strong></div>
+        <div class="analytics-status-row"><span><i class="status-dot rejected"></i>Rejected</span><strong>{{ status_counts.Rejected }}</strong></div>
+        <div class="analytics-note">{{ offer_count }} formal offer{{ offer_count|pluralize }} recorded in the system.</div>
+    </div></div>
+</div>
+
+<div class="card p-4 mt-4">
+    <div class="section-title">Top ATS matches</div>
+    {% if top_applications %}
+    <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Job</th><th>Company</th><th>ATS</th><th>Status</th></tr></thead><tbody>
+    {% for app in top_applications %}<tr><td>{{ app.job.title }}</td><td>{{ app.job.company }}</td><td><strong>{{ app.ats_score|floatformat:0 }}%</strong></td><td>{{ app.status }}</td></tr>{% endfor %}
+    </tbody></table></div>
+    {% else %}<p class="small-muted mb-0">Your strongest job matches will appear here after you apply.</p>{% endif %}
+</div>
+
+<div class="card p-4 mt-4"><div class="section-title">How the numbers are calculated</div><p class="small-muted mb-0">ATS is calculated from the resume submitted for each application. Status metrics use the application's current status, while interview and offer counts come from the interview and offer records.</p></div>
+
+{% if total %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+const labels = {{ chart_labels|safe|escapejs }};
+const values = {{ chart_values|safe|escapejs }};
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: { labels: labels, datasets: [{ data: values, backgroundColor: ['#2563eb','#16a34a','#f59e0b','#7c3aed','#dc3545'], borderWidth: 2, borderColor: '#fff' }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 18 } } } }
+});
+</script>
+{% endif %}
+{% endblock %}

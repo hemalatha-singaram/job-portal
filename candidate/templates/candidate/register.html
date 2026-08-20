@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Student Sign Up | CampusHire{% endblock %}
+{% block content %}
+<div class="auth-page"><div class="auth-card-modern">
+<div class="role-label">STUDENT PORTAL</div><h1>Create your account.</h1><p class="auth-subtitle">Set up your CampusHire student workspace.</p>
+<form method="post" class="auth-form">{% csrf_token %}
+<div class="row g-3"><div class="col-md-6"><label>First name</label>{{ form.first_name }}</div><div class="col-md-6"><label>Last name</label>{{ form.last_name }}</div></div>
+<label>Username</label>{{ form.username }}
+<label>Email</label>{{ form.email }}<small class="auth-help">Your account is activated immediately after registration.</small>
+<label>Password</label>{{ form.password }}
+{% if form.errors %}<div class="alert alert-danger mt-2">Please check the entered details.</div>{% endif %}
+<button class="primary-btn" type="submit">Create student account <span>→</span></button>
+</form>
+<p class="auth-switch">Already have an account? <a href="{% url 'candidate_login' %}">Student Login</a></p>
+<p class="auth-switch"><a href="{% url 'home' %}">← Back to CampusHire</a></p>
+</div></div>
+{% endblock %}

@@ -1,0 +1,4 @@
+{% extends 'recruiter/base.html' %}
+{% block title %}Send Offer | CampusHire{% endblock %}
+{% block page_title %}Send Offer{% endblock %}
+{% block content %}<div class="card p-4"><p class="small-muted">Candidate: <strong>{{ application.candidate.user.get_full_name|default:application.candidate.user.username }}</strong> · {{ application.job.title }}</p><form method="POST" enctype="multipart/form-data">{% csrf_token %}<div class="row g-3"><div class="col-md-6"><label class="form-label">Salary</label><input name="salary" class="form-control" required></div><div class="col-md-6"><label class="form-label">Joining date</label><input type="date" name="joining_date" class="form-control" required></div><div class="col-12"><label class="form-label">Offer letter</label><input type="file" name="offer_letter" class="form-control" required></div></div><button class="btn btn-primary mt-4">Send Offer</button></form></div>{% endblock %}

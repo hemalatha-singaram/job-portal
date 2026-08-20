@@ -1,0 +1,63 @@
+{% extends 'candidate/base.html' %}
+
+{% block content %}
+
+<div class="card shadow">
+
+    <div class="card-header bg-success text-white">
+
+        <h3>Shortlisted Jobs</h3>
+
+    </div>
+
+    <div class="card-body">
+
+        {% for application in applications %}
+
+        <div class="card mb-3">
+
+            <div class="card-body">
+
+                <h4>{{ application.job.title }}</h4>
+
+                <p>
+
+                    <strong>Company :</strong>
+
+                    {{ application.job.company }}
+
+                </p>
+
+                <p>
+
+                    <strong>Location :</strong>
+
+                    {{ application.job.location }}
+
+                </p>
+
+                <span class="badge bg-success">
+
+                    Shortlisted
+
+                </span>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="alert alert-warning">
+
+            No shortlisted jobs available.
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

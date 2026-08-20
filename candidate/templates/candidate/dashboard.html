@@ -1,0 +1,42 @@
+{% extends 'candidate/base.html' %}
+{% block title %}Student Dashboard | CampusHire{% endblock %}
+{% block page_title %}Student Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-hero card mb-4">
+    <div><span class="eyebrow">YOUR WORKSPACE</span><h2>Welcome back, {{ user.first_name|default:user.username }}.</h2><p>Keep one resume updated and let CampusHire keep your profile data in sync.</p></div>
+    <a class="btn btn-primary" href="{% url 'candidate_jobs' %}">Browse Jobs</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="stat-card"><div class="stat-value text-primary">{{ applied_count }}</div><div class="stat-label">Applications</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-value text-success">{{ shortlisted_count }}</div><div class="stat-label">Shortlisted</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-value">{{ interview_count }}</div><div class="stat-label">Interviews</div></div></div>
+    <div class="col-md-3"><div class="stat-card"><div class="stat-value">{{ offer_count }}</div><div class="stat-label">Offers</div></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-7">
+        <div class="card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3"><div><div class="section-title mb-1">Resume intelligence</div><p class="small-muted mb-0">Upload your resume and automatically fill the profile data.</p></div><span class="status-dot">● Parsed fields</span></div>
+            <form method="post" enctype="multipart/form-data" class="resume-upload-card">{% csrf_token %}<label class="form-label">Resume PDF / DOCX</label>{{ upload_form.resume }}{% if upload_form.errors %}<div class="text-danger small mt-2">{{ upload_form.resume.errors|striptags }}</div>{% endif %}<button class="btn btn-primary mt-3" type="submit">Upload & Extract</button></form>
+            {% if profile.resume %}<div class="uploaded-file mt-3"><span>✓</span><div><strong>{{ profile.resume.name|cut:'resumes/' }}</strong><small>Current resume</small></div><a href="{{ profile.resume.url }}" target="_blank" class="btn btn-sm btn-outline-primary">View</a></div>{% endif %}
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card p-4 h-100">
+            <div class="section-title">Extracted profile</div>
+            <div class="data-row"><span>Skills</span><strong>{{ profile.skills|default:'Not available' }}</strong></div>
+            <div class="data-row"><span>Projects</span><strong>{{ profile.projects|default:'Not available' }}</strong></div>
+            <div class="data-row"><span>Certificates</span><strong>{{ profile.certificates|default:'Not available' }}</strong></div>
+            <div class="data-row"><span>Experience</span><strong>{{ profile.experience_level }}</strong></div>
+            <div class="data-row"><span>Education</span><strong>{% if profile.graduation_cgpa %}CGPA {{ profile.graduation_cgpa }}{% elif profile.graduation_percentage %}{{ profile.graduation_percentage }}%{% else %}Not available{% endif %}</strong></div>
+            <a href="{% url 'candidate_profile' %}" class="btn btn-outline-secondary w-100 mt-3">Open Full Profile</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6"><div class="card p-4 h-100"><div class="d-flex justify-content-between align-items-center mb-3"><div class="section-title mb-0">Recent applications</div><a href="{% url 'applications' %}" class="btn btn-sm btn-outline-secondary">View All</a></div>{% for app in applications %}<div class="list-row"><div><strong>{{ app.job.title }}</strong><small>{{ app.job.company }} · {{ app.applied_date|date:'d M Y' }}</small></div><span class="badge bg-primary-subtle text-primary">{{ app.ats_score|floatformat:0 }}%</span></div>{% empty %}<div class="empty-state">No applications yet.</div>{% endfor %}</div></div>
+    <div class="col-lg-6"><div class="card p-4 h-100"><div class="d-flex justify-content-between align-items-center mb-3"><div class="section-title mb-0">Latest jobs</div><a href="{% url 'candidate_jobs' %}" class="btn btn-sm btn-outline-secondary">Browse</a></div>{% for job in jobs %}<div class="list-row"><div><strong>{{ job.title }}</strong><small>{{ job.company }} · {{ job.location }}</small></div><a href="{% url 'candidate_job_detail' job.id %}" class="btn btn-sm btn-primary">View</a></div>{% empty %}<div class="empty-state">No jobs available.</div>{% endfor %}</div></div>
+</div>
+{% endblock %}

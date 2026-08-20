@@ -1,0 +1,67 @@
+{% extends 'candidate/base.html' %}
+{% block title %}My Profile | CampusHire{% endblock %}
+{% block page_title %}Candidate Profile{% endblock %}
+{% block content %}
+<div class="profile-hero mb-4">
+    {% if profile.profile_image %}<img src="{{ profile.profile_image.url }}" class="avatar" alt="Profile">{% else %}<div class="avatar-fallback">{% if request.user.first_name %}{{ request.user.first_name|first|upper }}{% else %}{{ request.user.username|first|upper }}{% endif %}</div>{% endif %}
+    <div><h3 class="mb-1">{{ request.user.get_full_name|default:request.user.username }}</h3><div class="text-muted">{{ request.user.email }}</div><div class="small-muted mt-1">Keep your profile updated so ATS results are accurate.</div></div>
+</div>
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card p-4 h-100">
+            <div class="section-title">Resume & ATS data</div>
+            <div class="small-muted">Skills</div><p class="mt-1">{{ profile.skills|default:"Not extracted yet" }}</p>
+            <div class="small-muted">Experience</div><p class="mt-1">{{ profile.experience_level }}</p>
+            <div class="small-muted">Projects</div><p class="mt-1">{{ profile.projects|default:"Not extracted yet" }}</p>
+            <div class="small-muted">Internships</div><p class="mt-1">{{ profile.internships|default:"Not extracted yet" }}</p>
+            <div class="small-muted">Hackathons</div><p class="mt-1">{{ profile.hackathons|default:"Not extracted yet" }}</p>
+            <div class="small-muted">Programming Languages</div><p class="mt-1">{{ profile.programming_languages|default:"Not extracted yet" }}</p>
+            <div class="small-muted">Tools</div><p class="mt-1">{{ profile.tools|default:"Not extracted yet" }}</p>
+            <div class="small-muted">Certificates</div><p class="mt-1">{{ profile.certificates|default:"Not extracted yet" }}</p>
+            <div class="small-muted">Keywords</div><p class="mt-1">{{ profile.keywords|default:"Not extracted yet" }}</p>
+            <div class="small-muted">Tags</div><p class="mt-1 mb-0">{{ profile.tags|default:"Not generated yet" }}</p>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card p-4">
+            <div class="section-title">Edit profile</div>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Phone</label>{{ form.phone }}</div>
+                    <div class="col-md-6"><label class="form-label">Qualification</label>{{ form.qualification }}</div>
+                    <div class="col-md-6"><label class="form-label">City</label>{{ form.city }}</div>
+                    <div class="col-md-6"><label class="form-label">State</label>{{ form.state }}</div>
+                    <div class="col-12"><label class="form-label">Address</label>{{ form.address }}</div>
+                </div>
+                <hr class="my-4">
+                <div class="section-title">Education</div>
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">10th Percentage</label>{{ form.tenth_percentage }}</div>
+                    <div class="col-md-6"><label class="form-label">10th GPA</label>{{ form.tenth_gpa }}</div>
+                    <div class="col-md-6"><label class="form-label">Intermediate / 12th Percentage</label>{{ form.intermediate_percentage }}</div>
+                    <div class="col-md-6"><label class="form-label">Graduation Percentage</label>{{ form.graduation_percentage }}</div>
+                    <div class="col-md-6"><label class="form-label">Graduation CGPA</label>{{ form.graduation_cgpa }}</div>
+                </div>
+                <hr class="my-4">
+                <div class="section-title">Professional information</div>
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label">Experience</label>{{ form.experience_level }}</div>
+                    <div class="col-md-6"><label class="form-label">Skills</label>{{ form.skills }}</div>
+                    <div class="col-12"><label class="form-label">Projects</label>{{ form.projects }}</div>
+                    <div class="col-12"><label class="form-label">Certificates</label>{{ form.certificates }}</div>
+                </div>
+                <hr class="my-4">
+                <div class="section-title">Resume & profile image</div>
+                {% if profile.resume %}<div class="small-muted mb-2">Current resume: <a href="{{ profile.resume.url }}" target="_blank">View uploaded resume</a></div>{% endif %}
+                <div class="row g-3">
+                    <div class="col-md-8"><label class="form-label">Upload PDF / DOCX resume</label>{{ form.resume }}<div class="small-muted mt-1">Uploading a resume automatically extracts skills, experience, projects, keywords and tags.</div></div>
+                    <div class="col-md-4"><label class="form-label">Profile image</label>{{ form.profile_image }}</div>
+                </div>
+                {% if form.errors %}<div class="alert alert-danger mt-3">Please correct the highlighted fields.</div>{% endif %}
+                <button class="btn btn-primary mt-4" type="submit">Save Profile & Parse Resume</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

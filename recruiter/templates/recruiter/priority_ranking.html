@@ -1,0 +1,169 @@
+{% extends 'recruiter/base.html' %}
+
+{% block title %}ATS Dashboard{% endblock %}
+{% block page_title %}ATS Dashboard — Priority Ranking{% endblock %}
+
+{% block content %}
+
+<div class="portal-card mb-4">
+    <form method="GET" class="row g-3 align-items-end">
+
+        <div class="col-md-2">
+            <label class="form-label small">Job</label>
+            <select name="job" class="form-select">
+                <option value="">All Jobs</option>
+                {% for job in jobs %}
+                    <option value="{{ job.id }}" {% if filters.job == job.id|stringformat:"s" %}selected{% endif %}>{{ job.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small">Status</label>
+            <select name="status" class="form-select">
+                <option value="">Any</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small">Min Score (%)</label>
+            <input type="number" name="min_score" class="form-control" min="0" max="100" value="{{ filters.min_score }}">
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small">Min Experience (yrs)</label>
+            <input type="number" name="min_experience" class="form-control" min="0" value="{{ filters.min_experience }}">
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small">Skill Contains</label>
+            <input type="text" name="skill" class="form-control" placeholder="e.g. Python" value="{{ filters.skill }}">
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+            <a href="{% url 'priority_ranking' %}" class="btn btn-outline-secondary">Reset</a>
+        </div>
+
+    </form>
+</div>
+
+<div class="portal-card">
+
+    <p class="text-muted-soft mb-3">{{ page_obj.paginator.count }} candidate{{ page_obj.paginator.count|pluralize }} found, ranked highest ATS score first.</p>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Candidate</th>
+                    <th>Job Applied</th>
+                    <th>ATS Score</th>
+                    <th>Experience</th>
+                    <th>Skills</th>
+                    <th>Missing Skills</th>
+                    <th>Status</th>
+                    <th>Applied On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for app in applications %}
+                <tr>
+                    <td>
+                        <strong>{{ app.candidate.user.get_full_name|default:app.candidate.user.username }}</strong><br>
+                        <span class="text-muted small">{{ app.candidate.user.email }}</span>
+                    </td>
+                    <td>{{ app.job.title }}</td>
+                    <td>
+                        <div class="progress" style="height: 22px; min-width: 90px;">
+                            <div class="progress-bar
+                                {% if app.ats_score >= 70 %}bg-success
+                                {% elif app.ats_score >= 40 %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}"
+                                style="width: {{ app.ats_score }}%;">
+                                {{ app.ats_score }}%
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ app.candidate.experience }} yr(s)</td>
+                    <td>
+                        {% if app.matched_skills %}
+                            <span class="text-success">{{ app.matched_skills }}</span>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.missing_skills %}
+                            <span class="text-danger fw-bold">{{ app.missing_skills }}</span>
+                        {% else %}
+                            <span class="text-success">None</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.status == "Applied" %}<span class="badge bg-primary">Applied</span>
+                        {% elif app.status == "Shortlisted" %}<span class="badge bg-success">Shortlisted</span>
+                        {% elif app.status == "Interview" %}<span class="badge bg-warning text-dark">Interview</span>
+                        {% elif app.status == "Selected" %}<span class="badge bg-info">Selected</span>
+                        {% elif app.status == "Rejected" %}<span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ app.applied_date|date:"d M Y" }}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                Actions
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form method="POST" action="{% url 'update_application_status' app.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="Shortlisted">
+                                        <button type="submit" class="dropdown-item">Shortlist</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="POST" action="{% url 'update_application_status' app.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="Rejected">
+                                        <button type="submit" class="dropdown-item text-danger">Reject</button>
+                                    </form>
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'schedule_interview' app.id %}">Schedule Interview</a></li>
+                                <li><a class="dropdown-item" href="{% url 'create_offer' app.id %}">Send Offer</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="9" class="text-center text-muted py-4">No candidates match these filters.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&job={{ filters.job }}&status={{ filters.status }}&min_score={{ filters.min_score }}&min_experience={{ filters.min_experience }}&skill={{ filters.skill }}">Previous</a>
+            </li>
+            {% endif %}
+            <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&job={{ filters.job }}&status={{ filters.status }}&min_score={{ filters.min_score }}&min_experience={{ filters.min_experience }}&skill={{ filters.skill }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+</div>
+
+{% endblock %}
