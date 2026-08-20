@@ -1,36 +1,79 @@
 {% extends 'recruiter/base.html' %}
 
-{% block title %}Job Details{% endblock %}
-{% block page_title %}Job Details{% endblock %}
+{% block title %}
+Job Details
+{% endblock %}
 
 {% block content %}
+
 <div class="card p-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
-        <div>
-            <h2 class="mb-1">{{ job.title }}</h2>
-            <p class="text-muted mb-0">{{ job.company }} · {{ job.location }}</p>
-        </div>
-        <div>
-            <a href="{% url 'job_applications' job.id %}" class="btn btn-primary">View Applicants ({{ application_count }})</a>
-            <a href="{% url 'ranked_candidates' job.id %}" class="btn btn-success">Priority Ranking</a>
-        </div>
-    </div>
+
+    <h2 class="mb-4">{{ job.title }}</h2>
 
     <table class="table">
-        <tr><th width="200">Company</th><td>{{ job.company }}</td></tr>
-        <tr><th>Location</th><td>{{ job.location }}</td></tr>
-        <tr><th>Salary</th><td>{{ job.salary }}</td></tr>
-        <tr><th>Job Type</th><td>{{ job.job_type }}</td></tr>
-        <tr><th>Experience</th><td>{{ job.experience }}</td></tr>
-        <tr><th>Skills</th><td>{{ job.skills }}</td></tr>
-        <tr><th>Description</th><td>{{ job.description }}</td></tr>
-        <tr><th>Posted Date</th><td>{{ job.posted_date|date:"d M Y" }}</td></tr>
+
+        <tr>
+            <th width="200">Company</th>
+            <td>{{ job.company }}</td>
+        </tr>
+
+        <tr>
+            <th>Location</th>
+            <td>{{ job.location }}</td>
+        </tr>
+
+        <tr>
+            <th>Salary</th>
+            <td>{{ job.salary }}</td>
+        </tr>
+
+        <tr>
+            <th>Job Type</th>
+            <td>{{ job.job_type }}</td>
+        </tr>
+
+        <tr>
+            <th>Experience</th>
+            <td>{{ job.experience }}</td>
+        </tr>
+
+        <tr>
+            <th>Skills</th>
+            <td>{{ job.skills }}</td>
+        </tr>
+
+        <tr>
+            <th>Description</th>
+            <td>{{ job.description }}</td>
+        </tr>
+
+        <tr>
+            <th>Posted Date</th>
+            <td>{{ job.posted_date|date:"d M Y" }}</td>
+        </tr>
+
     </table>
 
     <div class="mt-3">
-        <a href="{% url 'edit_job' job.id %}" class="btn btn-warning">Edit</a>
-        <a href="{% url 'delete_job' job.id %}" class="btn btn-danger">Delete</a>
-        <a href="{% url 'view_jobs' %}" class="btn btn-secondary">Back</a>
+
+        <a href="{% url 'edit_job' job.id %}" class="btn btn-warning">
+            Edit
+        </a>
+
+        <a href="{% url 'priority_ranking' %}?job={{ job.id }}" class="btn btn-info">
+            View Ranked Applicants
+        </a>
+
+        <a href="{% url 'delete_job' job.id %}" class="btn btn-danger">
+            Delete
+        </a>
+
+        <a href="{% url 'view_jobs' %}" class="btn btn-secondary">
+            Back
+        </a>
+
     </div>
+
 </div>
+
 {% endblock %}

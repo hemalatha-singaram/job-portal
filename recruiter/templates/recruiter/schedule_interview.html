@@ -1,0 +1,123 @@
+{% extends 'recruiter/base.html' %}
+
+{% block title %}Schedule Interview{% endblock %}
+
+{% block page_title %}Schedule Interview{% endblock %}
+
+{% block content %}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-3">Schedule Interview</h4>
+
+        <div class="mb-4">
+            <p class="mb-1">
+                <strong>Candidate:</strong>
+                {{ application.candidate.user.get_full_name|default:application.candidate.user.username }}
+            </p>
+
+            <p class="mb-1">
+                <strong>Job:</strong>
+                {{ application.job.title }}
+            </p>
+
+            <p class="mb-0">
+                <strong>Company:</strong>
+                {{ application.job.company }}
+            </p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">
+                        Interview Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="interview_date"
+                        class="form-control"
+                        required
+                    >
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">
+                        Interview Time
+                    </label>
+
+                    <input
+                        type="time"
+                        name="interview_time"
+                        class="form-control"
+                        required
+                    >
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">
+                        Interview Mode
+                    </label>
+
+                    <select name="mode" class="form-select" required>
+                        <option value="">Select mode</option>
+                        <option value="Online">Online</option>
+                        <option value="Offline">Offline</option>
+                        <option value="Phone">Phone</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">
+                        Meeting Link
+                    </label>
+
+                    <input
+                        type="url"
+                        name="meeting_link"
+                        class="form-control"
+                        placeholder="https://..."
+                    >
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label class="form-label fw-semibold">
+                        Remarks
+                    </label>
+
+                    <textarea
+                        name="remarks"
+                        class="form-control"
+                        rows="4"
+                        placeholder="Add interview instructions or remarks..."
+                    ></textarea>
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2">
+
+                <button type="submit" class="btn btn-primary">
+                    Schedule Interview
+                </button>
+
+                <a
+                    href="{% url 'priority_ranking' %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'recruiter/base.html' %}
+
+{% block title %}Send Offer{% endblock %}
+
+{% block page_title %}Send Offer{% endblock %}
+
+{% block content %}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-3">Send Offer</h4>
+
+        <div class="mb-4">
+
+            <p class="mb-1">
+                <strong>Candidate:</strong>
+                {{ application.candidate.user.get_full_name|default:application.candidate.user.username }}
+            </p>
+
+            <p class="mb-1">
+                <strong>Job:</strong>
+                {{ application.job.title }}
+            </p>
+
+            <p class="mb-0">
+                <strong>Company:</strong>
+                {{ application.job.company }}
+            </p>
+
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label fw-semibold">
+                        Salary
+                    </label>
+
+                    <input
+                        type="number"
+                        name="salary"
+                        class="form-control"
+                        step="0.01"
+                        min="0"
+                        placeholder="Enter salary"
+                        required
+                    >
+
+                </div>
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label fw-semibold">
+                        Joining Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="joining_date"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+                <div class="col-12 mb-4">
+
+                    <label class="form-label fw-semibold">
+                        Offer Letter
+                    </label>
+
+                    <input
+                        type="file"
+                        name="offer_letter"
+                        class="form-control"
+                        required
+                    >
+
+                    <small class="text-muted">
+                        Upload the candidate's offer letter.
+                    </small>
+
+                </div>
+
+            </div>
+
+            <div class="d-flex gap-2">
+
+                <button type="submit" class="btn btn-success">
+                    Send Offer
+                </button>
+
+                <a
+                    href="{% url 'priority_ranking' %}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

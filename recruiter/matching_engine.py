@@ -1,94 +1,213 @@
 import re
 
-from django.utils import timezone
-
 from .models import CandidateMatch
 
 
-STOP_WORDS = {
-    'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from',
-    'in', 'is', 'of', 'on', 'or', 'the', 'to', 'with', 'we', 'you',
-    'your', 'our', 'this', 'that', 'will', 'work', 'working', 'job',
-    'role', 'candidate', 'team', 'years', 'year', 'experience',
-}
+def normalize_skills(text):
+    """
+    Converts a skills string into a normalized list.
 
+    Supports formats such as:
+    Python, Django, SQL
 
-def _tokens(value):
-    if not value:
-        return set()
-    words = re.findall(r"[a-zA-Z0-9][a-zA-Z0-9+#.-]*", str(value).lower())
-    return {word.strip('.-') for word in words if word.strip('.-') and word not in STOP_WORDS}
+    Python
+    Django
+    SQL
 
+    Python | Django | SQL
+    """
 
-def _skill_tokens(value):
-    """Turn common comma/newline/semicolon separated skill lists into tokens."""
-    if not value:
-        return set()
-    parts = re.split(r'[,;|\n]+', str(value))
-    tokens = set()
-    for part in parts:
-        tokens.update(_tokens(part))
-    return tokens
+    if not text:
+        return []
 
+    text = text.lower()
 
-def _required_experience(job_experience):
-    text = str(job_experience or '').lower()
-    numbers = [int(number) for number in re.findall(r'\d+', text)]
-    if not numbers:
-        return 0
-    # For ranges such as "2-4 years", use the minimum expected experience.
-    return min(numbers)
-
-
-def calculate_match(application):
-    """Calculate a transparent ATS-style match score for one application."""
-    job = application.job
-    candidate = application.candidate
-
-    required_skills = _skill_tokens(job.skills)
-    candidate_skills = _skill_tokens(candidate.skills)
-
-    if required_skills:
-        skill_score = (len(required_skills & candidate_skills) / len(required_skills)) * 100
-    else:
-        skill_score = 0
-
-    required_experience = _required_experience(job.experience)
-    candidate_experience = int(candidate.experience or 0)
-    if required_experience <= 0:
-        experience_score = 100 if candidate_experience >= 0 else 0
-    else:
-        experience_score = min(candidate_experience / required_experience, 1) * 100
-
-    job_keywords = _tokens(f'{job.title} {job.description} {job.skills} {job.experience}')
-    candidate_keywords = _tokens(
-        f'{candidate.skills} {candidate.qualification} {application.cover_letter}'
+    parts = re.split(
+        r'[,|\n;/]+',
+        text
     )
-    if job_keywords:
-        keyword_score = (len(job_keywords & candidate_keywords) / len(job_keywords)) * 100
-    else:
-        keyword_score = 0
 
-    # Skill fit is the strongest signal, followed by experience and keywords.
-    overall_score = (
-        skill_score * 0.50 +
-        experience_score * 0.25 +
-        keyword_score * 0.25
+    skills = []
+
+    for part in parts:
+        skill = part.strip()
+
+        if skill:
+            skills.append(skill)
+
+    return list(dict.fromkeys(skills))
+
+
+def calculate_ats_score(
+    candidate_skills,
+    job_skills,
+    candidate_experience=0,
+    job_experience=""
+):
+    """
+    Calculates a simple ATS score.
+
+    Score:
+    - 70% skill match
+    - 30% experience match
+    """
+
+    candidate_skill_list = normalize_skills(
+        candidate_skills
+    )
+
+    job_skill_list = normalize_skills(
+        job_skills
+    )
+
+    if not job_skill_list:
+        skill_score = 100
+        matched_skills = []
+        missing_skills = []
+
+    else:
+        matched_skills = []
+
+        for job_skill in job_skill_list:
+
+            for candidate_skill in candidate_skill_list:
+
+                if (
+                    job_skill in candidate_skill
+                    or candidate_skill in job_skill
+                ):
+                    matched_skills.append(
+                        job_skill
+                    )
+                    break
+
+        matched_skills = list(
+            dict.fromkeys(matched_skills)
+        )
+
+        missing_skills = [
+            skill
+            for skill in job_skill_list
+            if skill not in matched_skills
+        ]
+
+        skill_score = (
+            len(matched_skills)
+            / len(job_skill_list)
+        ) * 100
+
+    # -------------------------
+    # Experience score
+    # -------------------------
+
+    experience_score = 100
+
+    try:
+        candidate_experience = float(
+            candidate_experience or 0
+        )
+    except (ValueError, TypeError):
+        candidate_experience = 0
+
+    required_experience = 0
+
+    if job_experience:
+
+        match = re.search(
+            r'\d+',
+            str(job_experience)
+        )
+
+        if match:
+            required_experience = float(
+                match.group()
+            )
+
+    if required_experience > 0:
+
+        if candidate_experience >= required_experience:
+            experience_score = 100
+
+        elif candidate_experience > 0:
+            experience_score = (
+                candidate_experience
+                / required_experience
+            ) * 100
+
+            experience_score = min(
+                experience_score,
+                100
+            )
+
+        else:
+            experience_score = 0
+
+    # -------------------------
+    # Final ATS score
+    # -------------------------
+
+    ats_score = (
+        (skill_score * 0.70)
+        + (experience_score * 0.30)
+    )
+
+    ats_score = round(
+        min(max(ats_score, 0), 100),
+        2
     )
 
     return {
-        'overall_score': round(overall_score, 2),
-        'skills_score': round(skill_score, 2),
-        'experience_score': round(experience_score, 2),
-        'keyword_score': round(keyword_score, 2),
+        "ats_score": ats_score,
+        "matched_skills": matched_skills,
+        "missing_skills": missing_skills,
+        "skill_score": round(skill_score, 2),
+        "experience_score": round(
+            experience_score,
+            2
+        ),
     }
 
 
 def analyze_application(application):
-    scores = calculate_match(application)
-    match, _ = CandidateMatch.objects.get_or_create(application_id=application.id)
-    for field, value in scores.items():
-        setattr(match, field, value)
-    match.analyzed_at = timezone.now()
-    match.save()
+    """
+    Analyze one JobApplication and create/update
+    its CandidateMatch record.
+    """
+
+    candidate = application.candidate
+    job = application.job
+
+    result = calculate_ats_score(
+        candidate_skills=candidate.skills,
+        job_skills=job.skills,
+        candidate_experience=candidate.experience,
+        job_experience=job.experience
+    )
+
+    matched_skills = ", ".join(
+        result["matched_skills"]
+    )
+
+    missing_skills = ", ".join(
+        result["missing_skills"]
+    )
+
+    analysis = (
+        f"Skill Match: {result['skill_score']}%. "
+        f"Experience Match: "
+        f"{result['experience_score']}%. "
+        f"Final ATS Score: "
+        f"{result['ats_score']}%."
+    )
+
+    match, created = CandidateMatch.objects.update_or_create(
+        application=application,
+        defaults={
+            "ats_score": result["ats_score"],
+            "matched_skills": matched_skills,
+            "missing_skills": missing_skills,
+            "analysis": analysis,
+        }
+    )
+
     return match

@@ -1,0 +1,82 @@
+{% extends 'recruiter/base.html' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block page_title %}Notifications{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body">
+
+            <h5 class="fw-bold mb-4">
+                🔔 Recruiter Notifications
+            </h5>
+
+            {% if notifications %}
+
+                <div class="list-group">
+
+                    {% for notification in notifications %}
+
+                        <div class="list-group-item border-0 border-bottom py-3">
+
+                            <div class="d-flex align-items-start">
+
+                                <div class="me-3">
+
+                                    {% if notification.type == "application" %}
+                                        <span class="badge bg-primary rounded-pill">
+                                            Application
+                                        </span>
+
+                                    {% elif notification.type == "interview" %}
+                                        <span class="badge bg-warning text-dark rounded-pill">
+                                            Interview
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="flex-grow-1">
+
+                                    <div class="fw-semibold">
+                                        {{ notification.message }}
+                                    </div>
+
+                                    <small class="text-muted">
+                                        {{ notification.date|date:"d M Y" }}
+                                        {% if notification.time %}
+                                        at {{ notification.time|time:"h:i A" }}
+                                        {% endif %}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="alert alert-info">
+                    No notifications available.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

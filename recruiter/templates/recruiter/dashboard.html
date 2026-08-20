@@ -1,108 +1,135 @@
 {% extends 'recruiter/base.html' %}
 
-{% block title %}Recruiter Dashboard{% endblock %}
-{% block page_title %}Recruiter Dashboard{% endblock %}
+{% block title %}
+Dashboard
+{% endblock %}
 
 {% block content %}
-<div class="row g-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white p-4 text-center h-100">
-            <h1>{{ total_jobs }}</h1>
-            <h5>Total Jobs</h5>
+
+<div style="margin-bottom: 32px;">
+    <h2 style="margin-bottom: 8px;">Dashboard</h2>
+    <p class="text-muted-soft">Welcome back! Here's your recruitment overview</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-3" style="margin-bottom: 32px;">
+
+    <div class="col-md-4">
+        <div class="stat-card" style="border-left: 4px solid var(--primary);">
+            <h1 style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ total_jobs }}</h1>
+            <h5>Total Jobs Posted</h5>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-success text-white p-4 text-center h-100">
-            <h1>{{ active_jobs }}</h1>
-            <h5>Active Jobs</h5>
+
+    <div class="col-md-4">
+        <div class="stat-card" style="border-left: 4px solid var(--success);">
+            <h1 style="background: linear-gradient(135deg, var(--success), #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ active_jobs }}</h1>
+            <h5>Active Postings</h5>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card bg-warning p-4 text-center h-100">
-            <h1>{{ total_applications }}</h1>
-            <h5>Total Applications</h5>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-danger text-white p-4 text-center h-100">
-            <h1>{{ closed_jobs }}</h1>
+
+    <div class="col-md-4">
+        <div class="stat-card" style="border-left: 4px solid var(--accent);">
+            <h1 style="background: linear-gradient(135deg, var(--accent), #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ closed_jobs }}</h1>
             <h5>Closed Jobs</h5>
         </div>
     </div>
+
 </div>
 
-<div class="row g-4 mt-1">
-    <div class="col-md-4">
-        <div class="card border-warning p-3 text-center h-100">
-            <h3>{{ pending_count }}</h3>
-            <span class="text-muted">Pending Applications</span>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-success p-3 text-center h-100">
-            <h3>{{ shortlisted_count }}</h3>
-            <span class="text-muted">Shortlisted</span>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-info p-3 text-center h-100">
-            <h3>{{ interview_count }}</h3>
-            <span class="text-muted">Interviews</span>
-        </div>
-    </div>
-</div>
+<!-- Quick Actions -->
+<div class="card shadow-sm" style="margin-bottom: 32px;">
 
-<div class="card mt-4 shadow-sm">
+    <div class="card-header">Quick Actions</div>
+
     <div class="card-body">
-        <h4 class="mb-3">Quick Actions</h4>
-        <a href="{% url 'post_job' %}" class="btn btn-success me-2">➕ Post Job</a>
-        <a href="{% url 'view_jobs' %}" class="btn btn-primary me-2">💼 Manage Jobs</a>
-        <a href="{% url 'profile' %}" class="btn btn-dark">👤 Profile</a>
+
+        <a href="{% url 'post_job' %}" class="btn btn-success me-2 mb-2">
+            <span style="font-size: 1.2em;">➕</span> Post New Job
+        </a>
+
+        <a href="{% url 'view_jobs' %}" class="btn btn-primary me-2 mb-2">
+            <span style="font-size: 1.2em;">💼</span> Manage Jobs
+        </a>
+
+        <a href="{% url 'priority_ranking' %}" class="btn btn-info me-2 mb-2">
+            <span style="font-size: 1.2em;">📊</span> ATS Dashboard
+        </a>
+
+        <a href="{% url 'profile' %}" class="btn btn-outline-secondary mb-2">
+            <span style="font-size: 1.2em;">👤</span> My Profile
+        </a>
+
     </div>
+
 </div>
 
-<div class="card mt-4 shadow-sm">
-    <div class="card-body">
-        <h4 class="mb-3">Recent Jobs & Candidate Activity</h4>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-dark">
+<!-- Recent Jobs -->
+<div class="card shadow-sm">
+
+    <div class="card-header">Recent Job Postings</div>
+
+    <div class="card-body" style="padding: 0;">
+
+        {% if recent_jobs %}
+            <table class="table table-hover align-middle" style="margin: 0;">
+
+                <thead style="background: var(--page);">
+
                     <tr>
-                        <th>Job Title</th>
-                        <th>Company</th>
-                        <th>Location</th>
-                        <th>Applications</th>
-                        <th>Posted Date</th>
-                        <th>Recruiter Actions</th>
+                        <th style="color: var(--ink); font-weight: 700;">Job Title</th>
+                        <th style="color: var(--ink); font-weight: 700;">Company</th>
+                        <th style="color: var(--ink); font-weight: 700;">Location</th>
+                        <th style="color: var(--ink); font-weight: 700;">Posted Date</th>
                     </tr>
+
                 </thead>
+
                 <tbody>
-                {% for job in recent_jobs %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'job_details' job.id %}" class="text-decoration-none fw-bold">
-                                {{ job.title }}
-                            </a>
-                        </td>
-                        <td>{{ job.company }}</td>
-                        <td>{{ job.location }}</td>
-                        <td>
-                            <span class="badge bg-primary">
-                                {{ job.jobapplication_set.count }}
-                            </span>
-                        </td>
-                        <td>{{ job.posted_date|date:"d M Y" }}</td>
-                        <td>
-                            <a href="{% url 'job_applications' job.id %}" class="btn btn-primary btn-sm">View Applicants</a>
-                            <a href="{% url 'ranked_candidates' job.id %}" class="btn btn-outline-success btn-sm">Priority Ranking</a>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr><td colspan="6" class="text-center text-muted">No jobs available.</td></tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
+
+            {% for job in recent_jobs %}
+
+                <tr>
+
+                    <td>
+                        <a href="{% url 'job_details' job.id %}" class="text-decoration-none fw-bold">
+                            {{ job.title }}
+                        </a>
+                    </td>
+
+                    <td>{{ job.company }}</td>
+
+                    <td>{{ job.location }}</td>
+
+                    <td>{{ job.posted_date|date:"d M Y" }}</td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+
+                    <td colspan="4" class="text-center text-muted">
+                        No jobs available.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+            <div style="padding: 24px; text-align: center; color: var(--muted);">
+                No jobs posted yet. <a href="{% url 'post_job' %}">Create your first job posting</a>!
+            </div>
+
+        {% endif %}
+
     </div>
+
 </div>
 {% endblock %}
