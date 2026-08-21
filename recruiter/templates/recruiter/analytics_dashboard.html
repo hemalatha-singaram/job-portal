@@ -1,0 +1,78 @@
+{% extends "recruiter/base.html" %}
+
+{% block title %}Recruiter Analytics | CampusHire{% endblock %}
+{% block page_title %}Recruiter Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <p class="text-muted mb-0">Recruitment performance for your jobs and candidates.</p>
+        </div>
+        <a class="btn btn-outline-primary" href="{% url 'recruiter_analytics_export' %}">Download CSV</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="card h-100 p-3"><div class="text-muted">Total Jobs</div><div class="display-6 fw-bold">{{ total_jobs }}</div><small>7 days: {{ jobs_last_7 }} · 30 days: {{ jobs_last_30 }}</small></div></div>
+        <div class="col-md-4"><div class="card h-100 p-3"><div class="text-muted">Applications</div><div class="display-6 fw-bold">{{ total_applications }}</div><small>7 days: {{ applications_last_7 }} · 30 days: {{ applications_last_30 }}</small></div></div>
+        <div class="col-md-4"><div class="card h-100 p-3"><div class="text-muted">Unique Candidates</div><div class="display-6 fw-bold">{{ total_candidates }}</div><small>7 days: {{ candidates_last_7 }} · 30 days: {{ candidates_last_30 }}</small></div></div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="card p-3"><div class="text-muted">Average ATS</div><div class="h2 fw-bold">{{ avg_ats }}</div></div></div>
+        <div class="col-md-3"><div class="card p-3"><div class="text-muted">Highest ATS</div><div class="h2 fw-bold">{{ highest_ats }}</div></div></div>
+        <div class="col-md-3"><div class="card p-3"><div class="text-muted">Shortlist Rate</div><div class="h2 fw-bold">{{ shortlist_rate }}%</div></div></div>
+        <div class="col-md-3"><div class="card p-3"><div class="text-muted">Selection Rate</div><div class="h2 fw-bold">{{ selection_rate }}%</div></div></div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card p-4 h-100">
+                <h5>Application Pipeline</h5>
+                {% for row in chart_rows %}
+                <div class="d-flex justify-content-between border-bottom py-2"><span>{{ row.label }}</span><strong>{{ row.value }}</strong></div>
+                {% empty %}<p class="text-muted">No applications yet.</p>{% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card p-4 h-100">
+                <h5>Interviews & Offers</h5>
+                <div class="d-flex justify-content-between py-2"><span>Total interviews</span><strong>{{ interview_count }}</strong></div>
+                <div class="d-flex justify-content-between py-2"><span>Interviews in 7 days</span><strong>{{ interviews_last_7 }}</strong></div>
+                <div class="d-flex justify-content-between py-2"><span>Interviews in 30 days</span><strong>{{ interviews_last_30 }}</strong></div>
+                <div class="d-flex justify-content-between py-2"><span>Candidates interviewed</span><strong>{{ candidates_interviewed }}</strong></div>
+                <div class="d-flex justify-content-between py-2"><span>Offers sent</span><strong>{{ offer_count }}</strong></div>
+                <div class="d-flex justify-content-between py-2"><span>Offers accepted</span><strong>{{ accepted_offers }}</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <h5 class="mb-3">Top Candidates by ATS</h5>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Candidate</th><th>Job</th><th>ATS</th><th>Status</th><th>Applied</th></tr></thead>
+                <tbody>
+                {% for application in top_candidates %}
+                <tr><td>{{ application.candidate.user.username }}</td><td>{{ application.job.title }}</td><td><strong>{{ application.ats_score }}</strong></td><td>{{ application.status }}</td><td>{{ application.applied_date|date:"d M Y" }}</td></tr>
+                {% empty %}<tr><td colspan="5" class="text-muted">No applications yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card p-4">
+        <h5 class="mb-3">Job Performance</h5>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Job</th><th>Applications</th><th>Avg ATS</th><th>Shortlisted</th><th>Interview</th><th>Selected</th></tr></thead>
+                <tbody>
+                {% for job in top_jobs %}
+                <tr><td>{{ job.title }}</td><td>{{ job.application_count }}</td><td>{{ job.average_ats|default:"0"|floatformat:1 }}</td><td>{{ job.shortlisted_count }}</td><td>{{ job.interview_count }}</td><td>{{ job.selected_count }}</td></tr>
+                {% empty %}<tr><td colspan="6" class="text-muted">No jobs yet.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
