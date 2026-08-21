@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import analytics
 
 urlpatterns = [
 
@@ -17,6 +18,8 @@ urlpatterns = [
     path("job/<int:job_id>/", views.job_details, name="job_details"),
 
     path("ats-dashboard/", views.priority_ranking, name="priority_ranking"),
+    path("analytics/", analytics.analytics_dashboard, name="recruiter_analytics"),
+    path("analytics/export/", analytics.analytics_export, name="recruiter_analytics_export"),
     path("application/<int:application_id>/schedule-interview/", views.schedule_interview, name="schedule_interview"),
     path("application/<int:application_id>/create-offer/", views.create_offer, name="create_offer"),
     path("application/<int:application_id>/update-status/", views.update_application_status, name="update_application_status"),
