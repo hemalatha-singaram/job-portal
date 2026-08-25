@@ -254,3 +254,55 @@ def create_offer(request, application_id):
             return redirect("priority_ranking")
         messages.error(request, "Please provide salary, joining date and offer letter.")
     return render(request, "recruiter/create_offer.html", {"application": application})
+
+
+@recruiter_only
+def recruiter_notifications(request):
+    """Show recruiter-specific recruitment activity without adding a new database model."""
+    applications = (
+        JobApplication.objects
+        .select_related("candidate__user", "job")
+        .filter(job__recruiter=request.user)
+        .order_by("-applied_date")[:20]
+    )
+    interviews = (
+        Interview.objects
+        .select_related("application__candidate__user", "application__job")
+        .filter(application__job__recruiter=request.user)
+        .order_by("-interview_date", "-interview_time")[:20]
+    )
+    offers = (
+        Offer.objects
+        .select_related("application__candidate__user", "application__job")
+        .filter(application__job__recruiter=request.user)
+        .order_by("-joining_date")[:20]
+    )
+
+    notifications = []
+    for application in applications:
+        notifications.append({
+            "type": "Application",
+            "title": f"New application for {application.job.title}",
+            "message": f"{application.candidate.user.get_full_name() or application.candidate.user.username} applied to {application.job.title}.",
+            "created": application.applied_date,
+        })
+    for interview in interviews:
+        notifications.append({
+            "type": "Interview",
+            "title": f"Interview scheduled for {interview.application.job.title}",
+            "message": f"Interview for {interview.application.candidate.user.get_full_name() or interview.application.candidate.user.username} is scheduled on {interview.interview_date} at {interview.interview_time}.",
+            "created": interview.interview_date,
+        })
+    for offer in offers:
+        notifications.append({
+            "type": "Offer",
+            "title": f"Offer created for {offer.application.job.title}",
+            "message": f"An offer is available for {offer.application.candidate.user.get_full_name() or offer.application.candidate.user.username}.",
+            "created": offer.joining_date,
+        })
+
+    notifications.sort(key=lambda item: str(item["created"]), reverse=True)
+    return render(request, "recruiter/notifications.html", {
+        "notifications": notifications[:30],
+        "notification_count": len(notifications[:30]),
+    })
