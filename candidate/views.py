@@ -316,10 +316,7 @@ def my_applications(request):
 
 @login_required
 def shortlisted(request):
-    profile = _get_profile(request.user)
-    applications = JobApplication.objects.filter(candidate=profile, status="Shortlisted").select_related("job")
-    return render(request, "candidate/my_applications.html", {"applications": applications, "shortlisted_only": True})
-
+   
     profile = CandidateProfile.objects.get(user=request.user)
 
     applications = JobApplication.objects.filter(
