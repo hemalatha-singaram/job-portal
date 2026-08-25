@@ -10,6 +10,7 @@ urlpatterns = [
 
     path("", views.dashboard, name="dashboard"),
     path("profile/", views.profile, name="profile"),
+    path("notifications/", views.recruiter_notifications, name="recruiter_notifications"),
 
     path("post-job/", views.post_job, name="post_job"),
 
