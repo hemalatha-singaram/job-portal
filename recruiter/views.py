@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from candidate.email_utils import send_candidate_notification
 
 from candidate.models import Interview, JobApplication, Notification, Offer
 from .forms import JobForm
@@ -74,7 +75,7 @@ def recruiter_login(request):
             authenticated.is_staff or authenticated.groups.filter(name="Recruiters").exists()
         ):
             login(request, authenticated)
-            return redirect("dashboard")
+            return redirect("recruiter_dashboard")
         messages.error(request, "Invalid recruiter credentials.")
     return render(request, "recruiter/login.html")
 
@@ -220,23 +221,86 @@ def update_application_status(request, application_id):
 
 @recruiter_only
 def schedule_interview(request, application_id):
-    application = get_object_or_404(JobApplication, id=application_id, job__recruiter=request.user)
+    application = get_object_or_404(
+        JobApplication,
+        id=application_id,
+        job__recruiter=request.user
+    )
+
     if request.method == "POST":
         date = request.POST.get("interview_date")
         time = request.POST.get("interview_time")
         mode = request.POST.get("mode")
         link = request.POST.get("meeting_link", "")
         remarks = request.POST.get("remarks", "")
+
         if date and time and mode:
-            Interview.objects.create(application=application, interview_date=date, interview_time=time, mode=mode, meeting_link=link, remarks=remarks)
+
+            # Create interview
+            Interview.objects.create(
+                application=application,
+                interview_date=date,
+                interview_time=time,
+                mode=mode,
+                meeting_link=link,
+                remarks=remarks
+            )
+
+            # Update application status
             application.status = "Interview"
             application.save(update_fields=["status"])
-            Notification.objects.create(candidate=application.candidate, title="Interview Scheduled", message=f"An interview has been scheduled for {application.job.title}.")
-            messages.success(request, "Interview scheduled successfully.")
-            return redirect("priority_ranking")
-        messages.error(request, "Please fill in the interview date, time and mode.")
-    return render(request, "recruiter/schedule_interview.html", {"application": application})
 
+            # Create portal notification
+            Notification.objects.create(
+                candidate=application.candidate,
+                title="Interview Scheduled",
+                message=f"An interview has been scheduled for {application.job.title}."
+            )
+
+            # Send email notification
+            send_candidate_notification(
+                application.candidate.user.email,
+                "Interview Scheduled - CampusHire",
+                f"""
+Hello {application.candidate.user.first_name or application.candidate.user.username},
+
+Your interview has been scheduled.
+
+Job: {application.job.title}
+Company: {application.job.company}
+
+Date: {date}
+Time: {time}
+Mode: {mode}
+Meeting Link: {link or "Will be provided later"}
+
+Remarks:
+{remarks or "No additional remarks."}
+
+Please log in to CampusHire for more details.
+
+Regards,
+CampusHire Team
+"""
+            )
+
+            messages.success(
+                request,
+                "Interview scheduled successfully and email notification sent."
+            )
+
+            return redirect("priority_ranking")
+
+        messages.error(
+            request,
+            "Please fill in the interview date, time and mode."
+        )
+
+    return render(
+        request,
+        "recruiter/schedule_interview.html",
+        {"application": application}
+    )
 
 @recruiter_only
 def create_offer(request, application_id):

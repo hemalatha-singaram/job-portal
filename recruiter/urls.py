@@ -8,7 +8,7 @@ urlpatterns = [
     path("login/", views.recruiter_login, name="recruiter_login"),
     path("logout/", views.recruiter_logout, name="recruiter_logout"),
 
-    path("", views.dashboard, name="dashboard"),
+    path("", views.dashboard, name="recruiter_dashboard"),
     path("profile/", views.profile, name="profile"),
     path("notifications/", views.recruiter_notifications, name="recruiter_notifications"),
 

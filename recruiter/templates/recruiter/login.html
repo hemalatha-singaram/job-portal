@@ -1,14 +1,87 @@
 {% extends "base.html" %}
+
 {% block title %}Recruiter Login | CampusHire{% endblock %}
+
 {% block content %}
-<div class="auth-page"><div class="auth-card-modern">
-<div class="role-label">RECRUITER PORTAL</div><h1>Welcome back.</h1><p class="auth-subtitle">Sign in with your CampusHire account.</p>
-<form method="post" class="auth-form">{% csrf_token %}
-<label>Username or email</label><input type="text" name="username" placeholder="Enter your username or email" required autofocus>
-<label>Password</label><input type="password" name="password" placeholder="Enter your password" required>
-<label class="remember"><input type="checkbox"> Remember me</label>
-<button class="primary-btn" type="submit">Sign in <span>→</span></button></form>
-<div class="divider"><span>New to CampusHire?</span></div><a class="secondary-btn" href="{% url 'recruiter_register' %}">Create recruiter account</a>
-<p class="auth-switch"><a href="{% url 'home' %}">← Back to CampusHire</a></p>
-</div></div>
+
+<div class="auth-page">
+    <div class="auth-card-modern">
+
+        <div class="role-label">RECRUITER PORTAL</div>
+
+        <h1>Welcome back.</h1>
+
+        <p class="auth-subtitle">
+            Sign in with your CampusHire account.
+        </p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="auth-form">
+
+            {% csrf_token %}
+
+            <label for="username">
+                Username or email
+            </label>
+
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username or email"
+                required
+                autofocus
+            >
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+            >
+
+            <label class="remember">
+                <input type="checkbox" name="remember">
+                Remember me
+            </label>
+
+            <button
+                class="primary-btn"
+                type="submit">
+                Sign in <span>→</span>
+            </button>
+
+        </form>
+
+        <div class="divider">
+            <span>New to CampusHire?</span>
+        </div>
+
+        <a
+            class="secondary-btn"
+            href="{% url 'recruiter_register' %}">
+            Create recruiter account
+        </a>
+
+        <p class="auth-switch">
+            <a href="{% url 'home' %}">
+                ← Back to CampusHire
+            </a>
+        </p>
+
+    </div>
+</div>
+
 {% endblock %}
