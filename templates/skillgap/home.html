@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Skill Gap Analysis</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(
+                135deg,
+                #e0f2fe,
+                #f8fafc
+            );
+
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+
+            background: white;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 15px 40px
+                rgba(0, 0, 0, 0.12);
+
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(
+                135deg,
+                #0284c7,
+                #0369a1
+            );
+
+            color: white;
+
+            padding: 40px;
+
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .form-section {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            color: #334155;
+
+            margin-bottom: 10px;
+        }
+
+        .form-control {
+            width: 100%;
+
+            padding: 14px 16px;
+
+            border: 1px solid #cbd5e1;
+
+            border-radius: 10px;
+
+            font-size: 15px;
+
+            outline: none;
+
+            background: #f8fafc;
+
+            transition: 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #0284c7;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(2, 132, 199, 0.12);
+
+            background: white;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 140px;
+        }
+
+        .help-text {
+            margin-top: 8px;
+
+            font-size: 13px;
+
+            color: #64748b;
+        }
+
+        .button-container {
+            text-align: center;
+
+            margin-top: 30px;
+        }
+
+        .analyze-btn {
+            border: none;
+
+            background: linear-gradient(
+                135deg,
+                #0284c7,
+                #0369a1
+            );
+
+            color: white;
+
+            padding: 14px 40px;
+
+            border-radius: 10px;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 8px 20px
+                rgba(2, 132, 199, 0.3);
+        }
+
+        .info-box {
+            margin-top: 30px;
+
+            padding: 18px;
+
+            background: #f0f9ff;
+
+            border-left: 4px solid #0284c7;
+
+            border-radius: 8px;
+
+            color: #334155;
+
+            font-size: 14px;
+
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+
+            .form-section {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 27px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>Skill Gap Analysis</h1>
+
+        <p>
+            Discover the skills you need for your target job role
+        </p>
+
+    </div>
+
+
+    <div class="form-section">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+
+            <div class="form-group">
+
+                <label for="{{ form.job_role.id_for_label }}">
+                    Target Job Role
+                </label>
+
+                {{ form.job_role }}
+
+                <div class="help-text">
+                    Select the job role you want to prepare for.
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="{{ form.current_skills.id_for_label }}">
+                    Current Skills
+                </label>
+
+                {{ form.current_skills }}
+
+                <div class="help-text">
+                    Enter your skills separated by commas.
+                    Example: Python, HTML, CSS, Git
+                </div>
+
+            </div>
+
+
+            <div class="button-container">
+
+                <button
+                    type="submit"
+                    class="analyze-btn">
+
+                    Analyze Skills
+
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <div class="info-box">
+
+            <strong>💡 How it works</strong>
+
+            <br>
+
+            Select your target job role and enter your current
+            skills. The system will compare your skills with
+            the required skills and generate a personalized
+            learning path.
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
