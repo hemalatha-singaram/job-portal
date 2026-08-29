@@ -1,18 +1,5 @@
-# Python
-
-*.py[cod]
-
-# Virtual environment
-
-
-# VS Code
-.vscode/
-
-# Database (remove this line if your team tracks db.sqlite3)
-# db.sqlite3
-venv/
+.venv/
 __pycache__/
 *.pyc
-db.sqlite3
 .env
-media/
+.idea/
