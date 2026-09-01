@@ -1,5 +1,4 @@
 import hashlib
-import time
 
 from django.core.cache import cache
 from django.http import JsonResponse
@@ -58,7 +57,7 @@ class RequestRateLimitMiddleware:
     @staticmethod
     def _rate_limited_response(request):
         accepts_json = (
-            request.headers.get("Accept", "").find("application/json") >= 0
+            "application/json" in request.headers.get("Accept", "")
             or request.headers.get("X-Requested-With") == "XMLHttpRequest"
         )
         if accepts_json:
@@ -87,7 +86,7 @@ class FrontendErrorMiddleware:
             return self.get_response(request)
         except Exception:
             accepts_json = (
-                request.headers.get("Accept", "").find("application/json") >= 0
+                "application/json" in request.headers.get("Accept", "")
                 or request.headers.get("X-Requested-With") == "XMLHttpRequest"
             )
             if accepts_json:
