@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Too Many Requests | CampusHire</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <main class="portal-main" style="max-width:720px;margin:80px auto;text-align:center;">
+        <div class="card p-4">
+            <h1>Too Many Requests</h1>
+            <p>Please wait a moment and try again.</p>
+            <button class="btn btn-primary" onclick="window.location.reload()">Try Again</button>
+        </div>
+    </main>
+</body>
+</html>
