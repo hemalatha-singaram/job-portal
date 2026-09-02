@@ -1,0 +1,66 @@
+{% extends 'recruiter/base.html' %}
+
+{% block title %}AI Candidate Recommendations | CampusHire{% endblock %}
+{% block page_title %}AI Candidate Recommendations{% endblock %}
+
+{% block content %}
+<div class="card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+        <div>
+            <div class="small-muted">JOB</div>
+            <h2 class="mb-1">{{ job.title }}</h2>
+            <p class="text-muted mb-0">{{ job.company }} · {{ job.location }}</p>
+        </div>
+        <a href="{% url 'job_details' job.id %}" class="btn btn-outline-secondary">Back to Job</a>
+    </div>
+    <hr>
+    <div class="small-muted mb-1">REQUIRED SKILLS</div>
+    <div>{{ job.skills }}</div>
+</div>
+
+<div class="card p-4">
+    <div class="section-title">AI-ranked candidates</div>
+    <p class="text-muted">Candidates are ranked using required-skill coverage, resume/profile relevance and experience fit.</p>
+
+    {% if recommendations %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Candidate</th>
+                    <th>AI Match</th>
+                    <th>Skills</th>
+                    <th>Resume Relevance</th>
+                    <th>Experience</th>
+                    <th>Matched Skills</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in recommendations %}
+                <tr>
+                    <td>
+                        <strong>{{ item.candidate.user.get_full_name|default:item.candidate.user.username }}</strong>
+                        <div class="small text-muted">{{ item.candidate.experience }} year{{ item.candidate.experience|pluralize }}</div>
+                    </td>
+                    <td><span class="badge bg-primary">{{ item.score }}%</span></td>
+                    <td>{{ item.skill_score }}%</td>
+                    <td>{{ item.text_score }}%</td>
+                    <td>{{ item.experience_score }}%</td>
+                    <td>
+                        {% if item.matched_skills %}{{ item.matched_skills|join:", " }}{% else %}No direct match{% endif %}
+                    </td>
+                </tr>
+                {% if item.missing_skills %}
+                <tr>
+                    <td colspan="6" class="small text-muted border-top-0 pt-0">Missing skills: {{ item.missing_skills|join:", " }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">No candidate profiles are available yet.</div>
+    {% endif %}
+</div>
+{% endblock %}
