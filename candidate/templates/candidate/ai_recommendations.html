@@ -1,0 +1,50 @@
+{% extends 'candidate/base.html' %}
+
+{% block title %}AI Job Recommendations | CampusHire{% endblock %}
+{% block page_title %}AI Job Recommendations{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="mb-2">Jobs matched to your profile</h5>
+        <p class="text-muted-soft mb-0">Recommendations use your profile skills, resume content and experience to rank the available jobs.</p>
+    </div>
+</div>
+
+{% if recommendations %}
+    {% for item in recommendations %}
+    <div class="job-card mb-3">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+            <div style="flex:1;">
+                <h4 style="margin-bottom:4px; color:var(--primary);">{{ item.job.title }}</h4>
+                <p style="margin:8px 0; font-weight:600;">{{ item.job.company }}</p>
+                <p class="text-muted-soft mb-2">📍 {{ item.job.location }} · ⭐ {{ item.job.experience }}</p>
+                <div class="small text-muted">
+                    <strong>Matched skills:</strong>
+                    {% if item.matched_skills %}{{ item.matched_skills|join:", " }}{% else %}None detected yet{% endif %}
+                </div>
+                {% if item.missing_skills %}
+                <div class="small text-muted mt-1"><strong>Skills to improve:</strong> {{ item.missing_skills|join:", " }}</div>
+                {% endif %}
+            </div>
+            <div class="text-end">
+                <div class="display-6 fw-bold text-primary">{{ item.score }}%</div>
+                <div class="small text-muted">AI match</div>
+                <a href="{% url 'candidate_job_detail' item.job.id %}" class="btn btn-primary mt-2">View Details</a>
+            </div>
+        </div>
+        <hr>
+        <div class="row g-2 small text-muted">
+            <div class="col-md-4">Skills: <strong>{{ item.skill_score }}%</strong></div>
+            <div class="col-md-4">Resume relevance: <strong>{{ item.text_score }}%</strong></div>
+            <div class="col-md-4">Experience: <strong>{{ item.experience_score }}%</strong></div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card border-0" style="background:rgba(37,99,235,.05);padding:48px;text-align:center;">
+        <h4 style="color:var(--muted);">No recommendations yet</h4>
+        <p class="text-muted-soft mb-0">Add skills or upload a resume, then return here to get job recommendations.</p>
+    </div>
+{% endif %}
+{% endblock %}
