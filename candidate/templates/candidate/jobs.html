@@ -1,0 +1,98 @@
+{% extends 'candidate/base.html' %}
+
+{% block content %}
+
+<div style="margin-bottom: 32px;">
+    <h2 style="margin-bottom: 8px;">Available Opportunities</h2>
+    <p class="text-muted-soft">Discover and apply for amazing job opportunities</p>
+</div>
+
+<!-- Search Bar -->
+<div class="card shadow-sm" style="margin-bottom: 28px;">
+    <div class="card-body">
+        <form method="GET" style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <input type="text"
+                   name="keyword"
+                   class="form-control"
+                   placeholder="🔍 Search by job title or skills"
+                   style="flex: 1; min-width: 200px;">
+            <input type="text"
+                   name="location"
+                   class="form-control"
+                   placeholder="📍 Filter by location"
+                   style="flex: 1; min-width: 200px;">
+            <button class="btn btn-primary" style="padding: 10px 24px;">
+                Search
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Jobs List -->
+{% if jobs %}
+
+    <div style="max-width: 900px;">
+
+    {% for job in jobs %}
+
+        <div class="job-card">
+
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+
+                <div style="flex: 1;">
+
+                    <h4 style="margin-bottom: 4px; color: var(--primary);">{{ job.title }}</h4>
+
+                    <p style="margin: 8px 0; color: var(--ink); font-weight: 600;">{{ job.company }}</p>
+
+                    <p style="margin: 6px 0; color: var(--muted); font-size: 0.9rem;">
+                        📍 {{ job.location }}
+                    </p>
+
+                    <div style="display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap;">
+
+                        <span style="font-size: 0.85rem; background: rgba(37, 99, 235, 0.08); color: var(--primary); padding: 4px 10px; border-radius: 6px; font-weight: 600;">
+                            💰 {{ job.salary }}
+                        </span>
+
+                        <span style="font-size: 0.85rem; background: rgba(5, 150, 105, 0.08); color: var(--accent); padding: 4px 10px; border-radius: 6px; font-weight: 600;">
+                            ⏰ {{ job.job_type }}
+                        </span>
+
+                        <span style="font-size: 0.85rem; background: rgba(241, 196, 15, 0.08); color: var(--warning); padding: 4px 10px; border-radius: 6px; font-weight: 600;">
+                            ⭐ {{ job.experience }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div style="margin-left: 16px;">
+
+                    <a href="{% url 'candidate_job_detail' job.id %}" class="btn btn-primary" style="white-space: nowrap;">
+                        View Details
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+    </div>
+
+{% else %}
+
+    <div class="card border-0" style="background: rgba(37, 99, 235, 0.05); padding: 48px; text-align: center;">
+
+        <h4 style="margin-bottom: 12px; color: var(--muted);">No Jobs Found</h4>
+
+        <p style="color: var(--muted); margin-bottom: 0;">Try adjusting your search filters or check back later for new opportunities!</p>
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

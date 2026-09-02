@@ -1,0 +1,7 @@
+{% extends 'recruiter/base.html' %}
+{% block title %}My Jobs | CampusHire{% endblock %}
+{% block page_title %}My Job Postings{% endblock %}
+{% block content %}
+<div class="filters mb-4"><form method="GET" class="row g-2"><div class="col-md-9"><input name="search" class="form-control" value="{{ search }}" placeholder="Search your jobs by title, company or location"></div><div class="col-md-3 d-flex gap-2"><button class="btn btn-primary flex-fill">Search</button><a href="{% url 'view_jobs' %}" class="btn btn-outline-secondary">Reset</a></div></form></div>
+<div class="card p-0 overflow-hidden"><div class="table-responsive"><table class="table"><thead><tr><th>Role</th><th>Company</th><th>Location</th><th>Type</th><th>Applicants</th><th>Actions</th></tr></thead><tbody>{% for job in jobs %}<tr><td><a class="fw-bold text-decoration-none" href="{% url 'job_details' job.id %}">{{ job.title }}</a></td><td>{{ job.company }}</td><td>{{ job.location }}</td><td><span class="badge bg-primary-subtle text-primary">{{ job.job_type }}</span></td><td>{{ job.jobapplication_set.count }}</td><td><a class="btn btn-sm btn-outline-primary" href="{% url 'edit_job' job.id %}">Edit</a> <a class="btn btn-sm btn-outline-danger" href="{% url 'delete_job' job.id %}">Delete</a></td></tr>{% empty %}<tr><td colspan="6"><div class="empty-state m-3">No jobs found. Only jobs posted from this recruiter account appear here.</div></td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'recruiter/base.html' %}
+
+{% block title %}Recruiter Profile{% endblock %}
+{% block page_title %}Recruiter Profile{% endblock %}
+
+{% block content %}
+<div class="portal-card">
+    <div class="row g-4 align-items-center">
+        <div class="col-md-3 text-center">
+            <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width:150px;height:150px;font-size:48px;">
+                {{ request.user.username|first|upper }}
+            </div>
+        </div>
+        <div class="col-md-9">
+            <h3 class="fw-bold">{{ request.user.get_full_name|default:request.user.username }}</h3>
+            <p class="text-muted-soft">Recruiter account for posting and managing student job opportunities.</p>
+            <table class="table">
+                <tr><th>Username</th><td>{{ request.user.username }}</td></tr>
+                <tr><th>Email</th><td>{{ request.user.email|default:"Not added" }}</td></tr>
+                <tr><th>Jobs Posted</th><td>{{ total_jobs|default:"Use Manage Jobs to view your postings" }}</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

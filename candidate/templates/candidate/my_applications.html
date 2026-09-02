@@ -1,0 +1,197 @@
+{% extends 'candidate/base.html' %}
+
+{% block content %}
+
+<div class="card shadow">
+
+    <!-- Page Header -->
+    <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">My Applications</h3>
+    </div>
+
+    <div class="card-body">
+
+        {% if applications %}
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Job</th>
+                        <th>Company</th>
+                        <th>Applied Date</th>
+                        <th>ATS Score</th>
+                        <th>Matched Skills</th>
+                        <th>Missing Skills</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for application in applications %}
+
+                    <tr>
+
+                        <!-- Job -->
+                        <td>
+                            <strong>
+                                {{ application.job.title }}
+                            </strong>
+                        </td>
+
+                        <!-- Company -->
+                        <td>
+                            {{ application.job.company }}
+                        </td>
+
+                        <!-- Applied Date -->
+                        <td>
+                            {{ application.applied_date|date:"d M Y" }}
+                        </td>
+
+                        <!-- ATS Score -->
+                        <td>
+
+                            <div class="progress"
+                                 style="height: 25px; min-width: 100px;">
+
+                                <div
+                                    class="progress-bar
+                                    {% if application.ats_score >= 70 %}
+                                        bg-success
+                                    {% elif application.ats_score >= 40 %}
+                                        bg-warning text-dark
+                                    {% else %}
+                                        bg-danger
+                                    {% endif %}"
+
+                                    role="progressbar"
+
+                                    style="width: {{ application.ats_score }}%;">
+
+                                    {{ application.ats_score }}%
+
+                                </div>
+
+                            </div>
+
+                            <small class="text-muted">
+                                Match:
+                                {{ application.matching_percentage }}%
+                            </small>
+
+                        </td>
+
+                        <!-- Matched Skills -->
+                        <td>
+
+                            {% if application.matched_skills %}
+
+                                <span class="text-success">
+                                    {{ application.matched_skills }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    None
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Missing Skills -->
+                        <td>
+
+                            {% if application.missing_skills %}
+
+                                <span class="text-danger fw-bold">
+                                    {{ application.missing_skills }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-success">
+                                    No missing skills
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- Application Status -->
+                        <td>
+
+                            {% if application.status == "Applied" %}
+
+                                <span class="badge bg-primary">
+                                    Applied
+                                </span>
+
+                            {% elif application.status == "Shortlisted" %}
+
+                                <span class="badge bg-success">
+                                    Shortlisted
+                                </span>
+
+                            {% elif application.status == "Interview" %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Interview
+                                </span>
+
+                            {% elif application.status == "Selected" %}
+
+                                <span class="badge bg-info">
+                                    Selected
+                                </span>
+
+                            {% elif application.status == "Rejected" %}
+
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <!-- No Applications -->
+        <div class="text-center py-5">
+
+            <h5>No Applications Yet</h5>
+
+            <p class="text-muted">
+                You have not applied for any jobs.
+            </p>
+
+            <a href="{% url 'candidate_jobs' %}"
+               class="btn btn-primary">
+                Browse Jobs
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'recruiter/base.html' %}
+{% block title %}Recruiter Dashboard | CampusHire{% endblock %}
+{% block page_title %}Recruiter Dashboard{% endblock %}
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="stat-card"><div class="stat-value text-primary">{{ total_jobs }}</div><div class="stat-label">Your Job Postings</div></div></div>
+    <div class="col-md-4"><div class="stat-card"><div class="stat-value text-success">{{ total_applications }}</div><div class="stat-label">Applications to Your Jobs</div></div></div>
+    <div class="col-md-4"><div class="stat-card"><div class="stat-value">ATS</div><div class="stat-label">Ranking & Filtering</div></div></div>
+</div>
+<div class="card p-4 mb-4"><div class="section-title">Quick actions</div><div class="d-flex flex-wrap gap-2"><a href="{% url 'post_job' %}" class="btn btn-primary">Post New Job</a><a href="{% url 'view_jobs' %}" class="btn btn-outline-secondary">Manage My Jobs</a><a href="{% url 'priority_ranking' %}" class="btn btn-outline-secondary">Open ATS Dashboard</a></div></div>
+<div class="card p-4"><div class="d-flex justify-content-between align-items-center mb-3"><div class="section-title mb-0">Your recent postings</div><a href="{% url 'view_jobs' %}" class="small-muted">View all</a></div>
+{% if recent_jobs %}<div class="table-responsive"><table class="table"><thead><tr><th>Role</th><th>Company</th><th>Location</th><th>Posted</th></tr></thead><tbody>{% for job in recent_jobs %}<tr><td><a href="{% url 'job_details' job.id %}" class="fw-bold text-decoration-none">{{ job.title }}</a></td><td>{{ job.company }}</td><td>{{ job.location }}</td><td>{{ job.posted_date|date:"d M Y" }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state">No jobs posted yet. Create your first job posting.</div>{% endif %}
+</div>
+{% endblock %}

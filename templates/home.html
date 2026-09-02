@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}CampusHire — Campus Recruitment Platform{% endblock %}
+{% block content %}
+<div class="landing">
+<header class="landing-nav">
+    <a class="landing-brand" href="{% url 'home' %}"><span class="brand-mark">C</span><span>Campus<span class="brand-blue">Hire</span></span></a>
+    <nav class="landing-nav-actions">
+        <a class="nav-role" href="{% url 'candidate_login' %}">Student Login</a>
+        <a class="nav-role" href="{% url 'recruiter_login' %}">Recruiter Login</a>
+        <a class="nav-signup student" href="{% url 'candidate_register' %}">Student Sign Up</a>
+        <a class="nav-signup recruiter" href="{% url 'recruiter_register' %}">Recruiter Sign Up</a>
+    </nav>
+</header>
+<main>
+<section class="landing-hero">
+    <div class="hero-copy">
+        <div class="hero-badge"><span></span> CAMPUS RECRUITMENT PLATFORM</div>
+       
+       
+    
+    </div>
+</section>
+
+
+<section class="landing-cta"><div><span>READY TO START?</span><h2>Choose your CampusHire workspace.</h2></div><div class="cta-actions"><a class="hero-primary" href="{% url 'candidate_register' %}">Student Sign Up <span>→</span></a><a class="hero-secondary dark" href="{% url 'recruiter_register' %}">Recruiter Sign Up</a></div></section>
+</main>
+<footer class="landing-footer"><div><a class="landing-brand" href="{% url 'home' %}"><span class="brand-mark">C</span><span>Campus<span class="brand-blue">Hire</span></span></a><p>Smarter campus recruitment.</p></div><div><small>© 2026 CampusHire</small></div></footer>
+</div>
+{% endblock %}

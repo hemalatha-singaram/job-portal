@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# VS Code
+.vscode/
+
+# Database (remove this line if your team tracks db.sqlite3)
+# db.sqlite3
