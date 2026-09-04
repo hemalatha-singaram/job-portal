@@ -13,6 +13,28 @@
     <div class="col-lg-6"><div class="card p-4 h-100"><div class="section-title">Matched Skills</div>{% if application.matched_skills %}{% for skill in application.matched_skills|split_skills %}<span class="skill-chip">{{ skill }}</span>{% endfor %}{% else %}<p class="text-muted mb-0">No required skills matched.</p>{% endif %}</div></div>
     <div class="col-lg-6"><div class="card p-4 h-100"><div class="section-title">Missing Skills</div>{% if application.missing_skills %}{% for skill in application.missing_skills|split_skills %}<span class="skill-chip missing-chip">{{ skill }}</span>{% endfor %}{% else %}<span class="text-success fw-bold">No missing required skills.</span>{% endif %}</div></div>
 </div>
+{% if application.missing_skills %}
+<div class="card p-4 mt-4">
+    <div class="section-title">Learning Path for Your Missing Skills</div>
+    <p class="text-muted">Here is a suggested order to build the skills you are currently missing for this job.</p>
+    <div class="row g-3">
+        {% for skill in application.missing_skills|split_skills %}
+        {% with resource=skill|learning_resource %}
+        <div class="col-md-6">
+            <div class="border rounded p-3 h-100">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-primary">Step {{ forloop.counter }}</span>
+                    <strong>{{ skill }}</strong>
+                </div>
+                <div class="small text-muted mb-2">{{ resource.description }}</div>
+                <span class="badge bg-light text-dark">{{ resource.level }}</span>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 <div class="card p-4 mt-4"><div class="section-title">What this means</div><p class="text-muted mb-0">This score is calculated specifically for <strong>{{ application.job.title }}</strong> by comparing the skills extracted from the resume you submitted with the skills required by the recruiter.</p></div>
 <div class="mt-4 d-flex gap-2"><a href="{% url 'applications' %}" class="btn btn-primary">My Applications</a><a href="{% url 'candidate_jobs' %}" class="btn btn-outline-secondary">Browse More Jobs</a></div>
 {% endblock %}
