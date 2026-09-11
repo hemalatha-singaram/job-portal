@@ -24,16 +24,16 @@ class AILearningPathTests(SimpleTestCase):
     def test_gemini_response_is_normalised_and_missing_skills_are_preserved(self, mock_genai):
         mock_client = mock_genai.Client.return_value
         mock_client.models.generate_content.return_value.text = (
-            '[{"skill":"Django","description":"Learn models and views.","level":"Intermediate"}]'
+            '[{"skill":"Pandas","description":"Learn dataframes and data cleaning.","level":"Intermediate"}]'
         )
 
         with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}, clear=False):
             result = generate_learning_path(
-                "Python Developer",
-                ["Django", "REST API"],
-                current_skills=["Python"],
+                "Data Analyst",
+                ["Pandas", "Power BI"],
+                current_skills=["Python", "SQL"],
             )
 
-        self.assertEqual([item["skill"] for item in result], ["Django", "REST API"])
+        self.assertEqual([item["skill"] for item in result], ["Pandas", "Power BI"])
         self.assertEqual(result[0]["level"], "Intermediate")
         mock_client.models.generate_content.assert_called_once()
