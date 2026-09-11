@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from . import analytics
 from . import ai_recommendation
+from . import priority_views
 
 urlpatterns = [
     path("register/", views.register, name="recruiter_register"),
@@ -14,7 +15,7 @@ urlpatterns = [
     path("jobs/", views.view_jobs, name="view_jobs"),
     path("job/<int:job_id>/", views.job_details, name="job_details"),
     path("job/<int:job_id>/ai-candidates/", ai_recommendation.candidate_recommendations, name="ai_candidate_recommendations"),
-    path("ats-dashboard/", views.priority_ranking, name="priority_ranking"),
+    path("ats-dashboard/", priority_views.priority_ranking, name="priority_ranking"),
     path("analytics/", analytics.analytics_dashboard, name="recruiter_analytics"),
     path("analytics/export/", analytics.analytics_export, name="recruiter_analytics_export"),
     path("application/<int:application_id>/schedule-interview/", views.schedule_interview, name="schedule_interview"),
