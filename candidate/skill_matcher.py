@@ -1,7 +1,7 @@
 import re
 
 
-# Common resume/job-description variations.  The matcher keeps the displayed
+# Common resume/job-description variations. The matcher keeps the displayed
 # job skill unchanged while comparing a normalized form underneath.
 ALIASES = {
     "nodejs": {"nodejs", "node.js", "node js"},
@@ -50,47 +50,67 @@ def _candidate_variants(skill):
     return {v for v in variants if v}
 
 
-def _text_contains_skill(text, required_skill):
-    """Check a complete resume text, including multi-word skills and aliases."""
-    if not text:
-        return False
+def extract_technical_skills(resume_text):
+    """Extract only the skills explicitly listed under the Technical Skills section.
 
-    text_lower = str(text).lower()
-    compact_text = _compact(text_lower)
-    plain_text = _plain_normalize(text_lower)
+    ATS matching intentionally does not infer a skill from projects, experience,
+    certifications, summaries, or other resume sections. This keeps the match
+    explainable: a skill is matched only when the candidate explicitly lists it
+    as a technical skill.
+    """
+    if not resume_text:
+        return []
 
-    candidates = {str(required_skill).strip().lower()}
-    normalized = normalize_skill(required_skill)
-    compact_required = _compact(required_skill)
-    candidates.update(ALIASES.get(normalized, set()))
-    candidates.update(ALIASES.get(compact_required, set()))
+    lines = [line.strip() for line in str(resume_text).replace("\r", "").split("\n")]
+    start = None
+    for index, line in enumerate(lines):
+        normalized = re.sub(r"[^a-z0-9]+", " ", line.lower()).strip()
+        if normalized in {"technical skills", "technical skill", "technical skillset"}:
+            start = index + 1
+            break
 
-    for candidate in candidates:
-        candidate = candidate.strip().lower()
-        if not candidate:
-            continue
-        # Phrase-aware match prevents a skill such as SQL from matching MySQL.
-        phrase = _plain_normalize(candidate)
-        if phrase and re.search(r"(?<![a-z0-9])" + re.escape(phrase) + r"(?![a-z0-9])", plain_text):
-            return True
-        # Handles forms such as Node.js / C++ / C#.
-        compact = _compact(candidate)
-        if compact and compact in compact_text:
-            # Avoid the common SQL-in-MySQL false positive.
-            if compact == "sql" and "mysql" in compact_text:
-                if not re.search(r"(?<![a-z0-9])sql(?![a-z0-9])", plain_text):
-                    continue
-            return True
-    return False
+    if start is None:
+        return []
+
+    section_headings = {
+        "profile summary", "summary", "experience", "work experience",
+        "projects", "education", "certifications", "certification",
+        "hackathon", "hackathons", "achievements", "awards", "interests",
+    }
+    section_lines = []
+    for line in lines[start:]:
+        normalized = re.sub(r"[^a-z0-9]+", " ", line.lower()).strip()
+        if normalized in section_headings:
+            break
+        if line:
+            section_lines.append(line)
+
+    skills = []
+    for line in section_lines:
+        # Remove category labels such as Languages:, Web:, Tools:, etc.
+        if ":" in line:
+            line = line.split(":", 1)[1]
+        # A slash surrounded by whitespace is commonly used as a separator
+        # (e.g. Firebase / Firestore), while C/C++ remains untouched.
+        parts = re.split(r"[,;|]|\s+/\s+", line)
+        for part in parts:
+            part = re.sub(r"^[\-•*]+\s*", "", part).strip()
+            if part:
+                skills.append(part)
+    return skills
 
 
 def match_skills(candidate_skills, job_skills, candidate_text=""):
-    """Match required job skills against extracted skills *and the raw resume text*.
+    """Match required job skills using only the resume's Technical Skills section.
 
-    The raw-text fallback is important because a resume may contain a skill in a
-    Projects, Experience, Certifications, or Technologies section that the
-    simple skill extractor did not recognize.
+    ``candidate_text`` is retained for backwards compatibility with existing
+    callers, but when resume text is supplied it is used only to extract the
+    explicit Technical Skills section. No other resume section can create a
+    matched skill.
     """
+    if candidate_text:
+        candidate_skills = extract_technical_skills(candidate_text)
+
     candidate = set()
     for skill in (candidate_skills or []):
         candidate.update(_candidate_variants(skill))
@@ -100,7 +120,7 @@ def match_skills(candidate_skills, job_skills, candidate_text=""):
 
     for skill in required:
         required_variants = _candidate_variants(skill)
-        if candidate.intersection(required_variants) or _text_contains_skill(candidate_text, skill):
+        if candidate.intersection(required_variants):
             matched.append(skill)
         else:
             missing.append(skill)
