@@ -1,4 +1,4 @@
-"""Gemini-powered learning path generation with a safe local fallback."""
+"""Gemini-powered learning path generation with safe, curated resources."""
 
 import json
 import os
@@ -19,12 +19,50 @@ except ImportError:  # pragma: no cover - exercised only when dependency is miss
 CACHE_SECONDS = 60 * 60 * 24
 DEFAULT_MODEL = "gemini-3.7-flash"
 
+# These are direct learning pages, not search-result pages. Keep the URLs
+# controlled by the application instead of allowing the model to invent links.
+RESOURCE_LINKS = {
+    "python": ("GeeksforGeeks", "https://www.geeksforgeeks.org/python/python-programming-language/"),
+    "html": ("GeeksforGeeks", "https://www.geeksforgeeks.org/html/html-tutorial/"),
+    "css": ("GeeksforGeeks", "https://www.geeksforgeeks.org/css/css-tutorial/"),
+    "javascript": ("GeeksforGeeks", "https://www.geeksforgeeks.org/javascript/javascript-tutorial/"),
+    "django": ("GeeksforGeeks", "https://www.geeksforgeeks.org/python/django-tutorial/"),
+    "sql": ("GeeksforGeeks", "https://www.geeksforgeeks.org/sql/sql-tutorial/"),
+    "git": ("GeeksforGeeks", "https://www.geeksforgeeks.org/git/git-tutorial/"),
+    "rest api": ("GeeksforGeeks", "https://www.geeksforgeeks.org/rest-api/"),
+    "java": ("GeeksforGeeks", "https://www.geeksforgeeks.org/java/java/"),
+    "oop": ("GeeksforGeeks", "https://www.geeksforgeeks.org/object-oriented-programming-oops-concept-in-java/"),
+    "spring boot": ("GeeksforGeeks", "https://www.geeksforgeeks.org/springboot/spring-boot/"),
+    "c++": ("GeeksforGeeks", "https://www.geeksforgeeks.org/cpp/cpp/"),
+    "data structures": ("GeeksforGeeks", "https://www.geeksforgeeks.org/dsa/dsa-tutorial-learn-data-structures-and-algorithms/"),
+    "algorithms": ("GeeksforGeeks", "https://www.geeksforgeeks.org/fundamentals-of-algorithms/"),
+    "react": ("GeeksforGeeks", "https://www.geeksforgeeks.org/reactjs/reactjs-tutorials/"),
+    "bootstrap": ("GeeksforGeeks", "https://www.geeksforgeeks.org/bootstrap/bootstrap-tutorial/"),
+    "excel": ("GeeksforGeeks", "https://www.geeksforgeeks.org/excel/excel-tutorial/"),
+    "pandas": ("GeeksforGeeks", "https://www.geeksforgeeks.org/pandas/pandas-tutorial/"),
+    "numpy": ("GeeksforGeeks", "https://www.geeksforgeeks.org/python/numpy-tutorial/"),
+    "matplotlib": ("GeeksforGeeks", "https://www.geeksforgeeks.org/python/matplotlib-tutorial/"),
+    "power bi": ("GeeksforGeeks", "https://www.geeksforgeeks.org/power-bi/power-bi-tutorial/"),
+    "machine learning": ("GeeksforGeeks", "https://www.geeksforgeeks.org/machine-learning/machine-learning/"),
+    "statistics": ("GeeksforGeeks", "https://www.geeksforgeeks.org/statistics/statistics-tutorial/"),
+    "scikit-learn": ("Scikit-learn User Guide", "https://scikit-learn.org/stable/user_guide.html"),
+    "tensorflow": ("TensorFlow Tutorials", "https://www.tensorflow.org/tutorials"),
+}
+
 
 def _resource_links(skill):
-    query = quote_plus(str(skill).strip())
+    """Return a direct curated resource plus a YouTube tutorial search."""
+    clean_skill = str(skill).strip()
+    key = clean_skill.lower()
+    resource_name, resource_url = RESOURCE_LINKS.get(
+        key,
+        ("GeeksforGeeks", f"https://www.geeksforgeeks.org/?s={quote_plus(clean_skill)}"),
+    )
+    query = quote_plus(clean_skill)
     return {
+        "resource_name": resource_name,
+        "resource_url": resource_url,
         "youtube_url": f"https://www.youtube.com/results?search_query={query}+tutorial",
-        "web_url": f"https://www.google.com/search?q={query}+learning+resources",
     }
 
 
@@ -115,7 +153,7 @@ Each object must contain:
 - level: Beginner, Intermediate, or Advanced
 
 Order the skills in a sensible prerequisite-to-advanced sequence.
-Do not include URLs; the application will generate safe YouTube and web-search links separately.
+Do not include URLs; the application supplies curated learning resources separately.
 """
 
     try:
