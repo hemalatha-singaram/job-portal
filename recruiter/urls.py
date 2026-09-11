@@ -3,6 +3,7 @@ from . import views
 from . import analytics
 from . import ai_recommendation
 from . import priority_views
+from . import application_actions
 
 urlpatterns = [
     path("register/", views.register, name="recruiter_register"),
@@ -21,6 +22,7 @@ urlpatterns = [
     path("application/<int:application_id>/schedule-interview/", views.schedule_interview, name="schedule_interview"),
     path("application/<int:application_id>/create-offer/", views.create_offer, name="create_offer"),
     path("application/<int:application_id>/update-status/", views.update_application_status, name="update_application_status"),
+    path("application/<int:application_id>/delete/", application_actions.delete_application, name="recruiter_delete_application"),
     path("edit/<int:job_id>/", views.edit_job, name="edit_job"),
     path("delete/<int:job_id>/", views.delete_job, name="delete_job"),
 ]
