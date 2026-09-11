@@ -12,7 +12,7 @@ from .language_extracter import extract_languages, extract_tools
 from .project_extracter import extract_projects
 from .resume_parser import extract_resume_text
 from .skill_extracter import extract_skills
-from .skill_matcher import match_skills
+from .skill_matcher import extract_technical_skills, match_skills
 
 
 class ResumeIntelligenceTests(SimpleTestCase):
@@ -20,29 +20,15 @@ class ResumeIntelligenceTests(SimpleTestCase):
     HEMALATHA\n
     EXPERIENCE\n
     ServiceNow Virtual Intern | SmartBridge\n
-    Duration: May 2026 - June 2026\n
-    Machine Learning Intern | Coding Blocks\n
-    Duration: June 2026 - July 2026\n
+    Duration: May 2026 - June 2026\n    Machine Learning Intern | Coding Blocks\n    Duration: June 2026 - July 2026\n
 
-    PROJECTS\n
-    CampusHire ATS | Python, Django, SQL\n
-    Built resume parsing and ATS matching.\n
-    Reclaim | React, TypeScript, Gemini\n
-    Built a campus lost and found platform.\n
+    PROJECTS\n    CampusHire ATS | Python, Django, SQL\n    Built resume parsing and ATS matching.\n    Reclaim | React, TypeScript, Gemini\n    Built a campus lost and found platform.\n
 
-    EDUCATION\n
-    B.Tech CSE\n
+    EDUCATION\n    B.Tech CSE\n
 
-    TECHNICAL SKILLS\n
-    Languages: Python, Java, C++\n
-    Tools: Git, GitHub, Power BI, Excel, ServiceNow\n
-
-    CERTIFICATIONS\n
-    Deloitte Data Analytics | Forage\n
-
-    HACKATHON\n
-    BuildWise | Python, Flask, Gemini API\n
-    """
+    TECHNICAL SKILLS\n    Languages: Python, Java, C++\n    Tools: Git, GitHub, Power BI, Excel, ServiceNow\n
+    CERTIFICATIONS\n    Deloitte Data Analytics | Forage\n
+    HACKATHON\n    BuildWise | Python, Flask, Gemini API\n    """
 
     def test_docx_table_text_is_extracted(self):
         doc = Document()
@@ -79,13 +65,40 @@ class ResumeIntelligenceTests(SimpleTestCase):
         self.assertIn("Python", extract_languages(self.SAMPLE))
         self.assertIn("Power BI", extract_tools(self.SAMPLE))
 
-    def test_skills_and_ats_match_resume_content(self):
-        skills = extract_skills(self.SAMPLE)
+    def test_technical_skills_section_is_extracted(self):
+        skills = extract_technical_skills(self.SAMPLE)
         self.assertIn("Python", skills)
         self.assertIn("Java", skills)
         self.assertIn("C++", skills)
-        self.assertNotIn("C", skills)  # C++ must not be reduced to C.
-        matched, missing, score = match_skills([], "Python, Django, SQL, React", candidate_text=self.SAMPLE)
-        self.assertEqual(matched, ["Python", "Django", "SQL", "React"])
-        self.assertEqual(missing, [])
-        self.assertEqual(score, 100.0)
+        self.assertIn("Power BI", skills)
+        self.assertIn("Excel", skills)
+        self.assertNotIn("Django", skills)
+        self.assertNotIn("SQL", skills)
+        self.assertNotIn("React", skills)
+
+    def test_ats_uses_only_technical_skills_section(self):
+        matched, missing, score = match_skills(
+            [],
+            "Python, Django, SQL, React, Power BI, Excel",
+            candidate_text=self.SAMPLE,
+        )
+        self.assertEqual(matched, ["Python", "Power BI", "Excel"])
+        self.assertEqual(missing, ["Django", "SQL", "React"])
+        self.assertEqual(score, 50.0)
+
+    def test_raw_resume_mentions_do_not_count_as_ats_skills(self):
+        resume = """\
+        PROJECTS\n
+        Built a Django and SQL project with React.\n
+        EXPERIENCE\n
+        Worked on Power BI dashboards.\n
+        TECHNICAL SKILLS\n
+        Languages: Python, Java\n
+        Tools: Git\n
+        """
+        matched, missing, score = match_skills(
+            [], "Python, Django, SQL, React, Power BI", candidate_text=resume
+        )
+        self.assertEqual(matched, ["Python"])
+        self.assertEqual(missing, ["Django", "SQL", "React", "Power BI"])
+        self.assertEqual(score, 20.0)
