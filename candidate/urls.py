@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from . import ai_recommendation
 from . import ai_learning_path_views
+from . import application_actions
 
 urlpatterns = [
     path("register/", views.register, name="candidate_register"),
@@ -15,6 +16,7 @@ urlpatterns = [
     path("application/<int:application_id>/ats/", views.ats_result, name="ats_result"),
     path("application/<int:application_id>/learning-path/", ai_learning_path_views.learning_path, name="ai_learning_path"),
     path("applications/", views.my_applications, name="applications"),
+    path("applications/<int:application_id>/delete/", application_actions.delete_application, name="delete_application"),
     path("shortlisted/", views.shortlisted, name="shortlisted"),
     path("interviews/", views.interviews, name="interviews"),
     path("offers/", views.offers, name="offers"),
