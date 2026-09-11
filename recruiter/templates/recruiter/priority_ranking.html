@@ -135,6 +135,15 @@
                                 </li>
                                 <li><a class="dropdown-item" href="{% url 'schedule_interview' app.id %}">Schedule Interview</a></li>
                                 <li><a class="dropdown-item" href="{% url 'create_offer' app.id %}">Send Offer</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST"
+                                          action="{% url 'recruiter_delete_application' app.id %}"
+                                          onsubmit="return confirm('Remove this applicant from your recruitment list? This cannot be undone.');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item text-danger">Delete Applicant</button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     </td>
